@@ -1,0 +1,12 @@
+{% extends 'garrison/_layouts/plugin' %}
+
+{% set title = 'Web Application Firewall'|t('garrison') %}
+{% set selectedSubnavItem = 'shield' %}
+
+{% block pluginContent %}
+    <p>{{ 'WAF request filtering rules. Implemented in Phase 5.'|t('garrison') }}</p>
+{% endblock %}
+
+{% block actionButton %}
+    <a href="{{ url('garrison/shield') }}" class="btn">{{ 'Back to Shield'|t('garrison') }}</a>
+{% endblock %}

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Base wall -->
+  <rect x="15" y="45" width="70" height="40" rx="2" fill="none" stroke="currentColor" stroke-width="4"/>
+  <!-- Gate arch -->
+  <path d="M38 85 L38 62 A12 12 0 0 1 62 62 L62 85" fill="none" stroke="currentColor" stroke-width="4"/>
+  <!-- Left tower -->
+  <rect x="8" y="30" width="20" height="55" rx="1" fill="none" stroke="currentColor" stroke-width="4"/>
+  <!-- Right tower -->
+  <rect x="72" y="30" width="20" height="55" rx="1" fill="none" stroke="currentColor" stroke-width="4"/>
+  <!-- Left battlements -->
+  <rect x="8" y="20" width="6" height="10" fill="currentColor"/>
+  <rect x="22" y="20" width="6" height="10" fill="currentColor"/>
+  <path d="M8 30 L8 20 L14 20 L14 25 L22 25 L22 20 L28 20 L28 30" fill="none" stroke="currentColor" stroke-width="3"/>
+  <!-- Right battlements -->
+  <rect x="72" y="20" width="6" height="10" fill="currentColor"/>
+  <rect x="86" y="20" width="6" height="10" fill="currentColor"/>
+  <path d="M72 30 L72 20 L78 20 L78 25 L86 25 L86 20 L92 20 L92 30" fill="none" stroke="currentColor" stroke-width="3"/>
+  <!-- Center battlements -->
+  <rect x="30" y="35" width="6" height="10" fill="currentColor"/>
+  <rect x="47" y="35" width="6" height="10" fill="currentColor"/>
+  <rect x="64" y="35" width="6" height="10" fill="currentColor"/>
+  <path d="M28 45 L28 35 L36 35 L36 40 L47 40 L47 35 L53 35 L53 40 L64 40 L64 35 L72 35 L72 45" fill="none" stroke="currentColor" stroke-width="3"/>
+  <!-- Flag on left tower -->
+  <line x1="18" y1="8" x2="18" y2="20" stroke="currentColor" stroke-width="2.5"/>
+  <path d="M18 8 L30 13 L18 18" fill="currentColor" opacity="0.85"/>
+</svg>

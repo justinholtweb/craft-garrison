@@ -1,0 +1,57 @@
+{% extends 'garrison/_layouts/plugin' %}
+
+{% set title = 'Garrison Dashboard'|t('garrison') %}
+{% set selectedSubnavItem = 'dashboard' %}
+
+{% do view.registerAssetBundle('justinholtweb\\garrison\\web\\assets\\cp\\CpAsset') %}
+
+{% block pluginContent %}
+    <div class="garrison-dashboard">
+        {% if lastScan %}
+            <div class="garrison-summary">
+                <div class="garrison-card garrison-risk-score garrison-risk--{{ lastScan.riskColor() }}">
+                    <h2>{{ 'Risk Score'|t('garrison') }}</h2>
+                    <div class="garrison-score-value">{{ lastScan.riskScore }}</div>
+                    <div class="garrison-score-label">{{ lastScan.riskLabel() }}</div>
+                </div>
+
+                <div class="garrison-card">
+                    <h2>{{ 'Last Scan'|t('garrison') }}</h2>
+                    <div class="garrison-stat-grid">
+                        <div class="garrison-stat">
+                            <span class="garrison-stat-value status-passed">{{ lastScan.passedChecks }}</span>
+                            <span class="garrison-stat-label">{{ 'Passed'|t('garrison') }}</span>
+                        </div>
+                        <div class="garrison-stat">
+                            <span class="garrison-stat-value status-warning">{{ lastScan.warningChecks }}</span>
+                            <span class="garrison-stat-label">{{ 'Warnings'|t('garrison') }}</span>
+                        </div>
+                        <div class="garrison-stat">
+                            <span class="garrison-stat-value status-failed">{{ lastScan.failedChecks }}</span>
+                            <span class="garrison-stat-label">{{ 'Failed'|t('garrison') }}</span>
+                        </div>
+                        <div class="garrison-stat">
+                            <span class="garrison-stat-value status-critical">{{ lastScan.criticalChecks }}</span>
+                            <span class="garrison-stat-label">{{ 'Critical'|t('garrison') }}</span>
+                        </div>
+                    </div>
+                    <div class="garrison-scan-meta">
+                        {{ 'Scanned {date}'|t('garrison', { date: lastScan.dateCreated ? lastScan.dateCreated|date('M j, Y g:i A') : 'N/A' }) }}
+                        &middot; {{ lastScan.triggeredBy }}
+                        &middot; {{ lastScan.duration }}s
+                    </div>
+                </div>
+            </div>
+
+            <div class="garrison-actions">
+                <a href="{{ url('garrison/scanner') }}" class="btn">{{ 'View Scanner'|t('garrison') }}</a>
+                <a href="{{ url('garrison/scanner/results/' ~ lastScan.id) }}" class="btn">{{ 'View Results'|t('garrison') }}</a>
+            </div>
+        {% else %}
+            <div class="garrison-empty">
+                <p>{{ 'No scans have been run yet.'|t('garrison') }}</p>
+                <a href="{{ url('garrison/scanner') }}" class="btn submit">{{ 'Run Your First Scan'|t('garrison') }}</a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'garrison/_layouts/plugin' %}
+
+{% set title = 'Scan Results'|t('garrison') %}
+{% set selectedSubnavItem = 'scanner' %}
+
+{% do view.registerAssetBundle('justinholtweb\\garrison\\web\\assets\\cp\\CpAsset') %}
+
+{% block pluginContent %}
+    <div class="garrison-results">
+        <div class="garrison-results-header">
+            <div class="garrison-card garrison-risk-score garrison-risk--{{ report.riskColor() }}">
+                <div class="garrison-score-value">{{ report.riskScore }}</div>
+                <div class="garrison-score-label">{{ report.riskLabel() }}</div>
+            </div>
+
+            <div class="garrison-results-meta garrison-card">
+                <dl>
+                    <dt>{{ 'Status'|t('garrison') }}</dt>
+                    <dd><span class="garrison-status garrison-status--{{ report.status.color() }}">{{ report.status.label() }}</span></dd>
+
+                    <dt>{{ 'Date'|t('garrison') }}</dt>
+                    <dd>{{ report.dateCreated ? report.dateCreated|date('M j, Y g:i A') : 'N/A' }}</dd>
+
+                    <dt>{{ 'Triggered By'|t('garrison') }}</dt>
+                    <dd>{{ report.triggeredBy }}</dd>
+
+                    <dt>{{ 'Duration'|t('garrison') }}</dt>
+                    <dd>{{ report.duration }}s</dd>
+
+                    <dt>{{ 'Checks'|t('garrison') }}</dt>
+                    <dd>{{ report.totalChecks }} total &middot; {{ report.passedChecks }} passed &middot; {{ report.warningChecks }} warnings &middot; {{ report.failedChecks }} failed &middot; {{ report.criticalChecks }} critical</dd>
+                </dl>
+            </div>
+        </div>
+
+        <h2>{{ 'Check Results'|t('garrison') }}</h2>
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th style="width: 5%"></th>
+                    <th>{{ 'Check'|t('garrison') }}</th>
+                    <th>{{ 'Category'|t('garrison') }}</th>
+                    <th>{{ 'Severity'|t('garrison') }}</th>
+                    <th>{{ 'Status'|t('garrison') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in report.results %}
+                    <tr>
+                        <td>
+                            {% if result.isPassed() %}
+                                <span class="garrison-icon garrison-icon--green" title="Passed">&#10003;</span>
+                            {% elseif result.isWarning() %}
+                                <span class="garrison-icon garrison-icon--orange" title="Warning">&#9888;</span>
+                            {% elseif result.isFailed() %}
+                                <span class="garrison-icon garrison-icon--red" title="Failed">&#10007;</span>
+                            {% else %}
+                                <span class="garrison-icon garrison-icon--grey" title="Skipped">&ndash;</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ result.checkName }}</strong>
+                            {% if result.message %}
+                                <div class="light">{{ result.message }}</div>
+                            {% endif %}
+                            {% if result.remediation %}
+                                <div class="garrison-remediation">{{ result.remediation }}</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ result.category.label() }}</td>
+                        <td><span class="garrison-badge garrison-badge--{{ result.severity.color() }}">{{ result.severity.label() }}</span></td>
+                        <td><span class="garrison-status garrison-status--{{ result.status.color() }}">{{ result.status.label() }}</span></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block actionButton %}
+    <a href="{{ url('garrison/scanner') }}" class="btn">{{ 'Back to Scanner'|t('garrison') }}</a>
+{% endblock %}

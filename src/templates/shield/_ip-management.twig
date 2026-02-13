@@ -1,0 +1,12 @@
+{% extends 'garrison/_layouts/plugin' %}
+
+{% set title = 'IP Management'|t('garrison') %}
+{% set selectedSubnavItem = 'shield' %}
+
+{% block pluginContent %}
+    <p>{{ 'Manage IP allow/block rules with CIDR support. Implemented in Phase 3.'|t('garrison') }}</p>
+{% endblock %}
+
+{% block actionButton %}
+    <a href="{{ url('garrison/shield') }}" class="btn">{{ 'Back to Shield'|t('garrison') }}</a>
+{% endblock %}

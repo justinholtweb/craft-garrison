@@ -1,0 +1,27 @@
+{# @param result ScanResult #}
+
+<tr>
+    <td>
+        {% if result.isPassed() %}
+            <span class="garrison-icon garrison-icon--green">&#10003;</span>
+        {% elseif result.isWarning() %}
+            <span class="garrison-icon garrison-icon--orange">&#9888;</span>
+        {% elseif result.isFailed() %}
+            <span class="garrison-icon garrison-icon--red">&#10007;</span>
+        {% else %}
+            <span class="garrison-icon garrison-icon--grey">&ndash;</span>
+        {% endif %}
+    </td>
+    <td>
+        <strong>{{ result.checkName }}</strong>
+        {% if result.message %}
+            <div class="light">{{ result.message }}</div>
+        {% endif %}
+        {% if result.remediation %}
+            <div class="garrison-remediation">{{ result.remediation }}</div>
+        {% endif %}
+    </td>
+    <td>{{ result.category.label() }}</td>
+    <td><span class="garrison-badge garrison-badge--{{ result.severity.color() }}">{{ result.severity.label() }}</span></td>
+    <td><span class="garrison-status garrison-status--{{ result.status.color() }}">{{ result.status.label() }}</span></td>
+</tr>

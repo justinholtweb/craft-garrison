@@ -1,0 +1,23 @@
+{% extends 'garrison/_layouts/plugin' %}
+
+{% set title = 'Sentinel'|t('garrison') %}
+{% set selectedSubnavItem = 'sentinel' %}
+
+{% do view.registerAssetBundle('justinholtweb\\garrison\\web\\assets\\cp\\CpAsset') %}
+
+{% block pluginContent %}
+    <div class="garrison-card-grid">
+        <a href="{{ url('garrison/sentinel/audit-log') }}" class="garrison-nav-card garrison-card">
+            <h3>{{ 'Audit Log'|t('garrison') }}</h3>
+            <p>{{ 'Track all user and system actions.'|t('garrison') }}</p>
+        </a>
+
+        <a href="{{ url('garrison/sentinel/file-integrity') }}" class="garrison-nav-card garrison-card">
+            <h3>{{ 'File Integrity'|t('garrison') }}</h3>
+            <p>{{ 'Monitor critical files for unauthorized changes.'|t('garrison') }}</p>
+            {% if not craft.app.plugins.getPlugin('garrison').is('plus') %}
+                <span class="garrison-edition-badge">Plus</span>
+            {% endif %}
+        </a>
+    </div>
+{% endblock %}

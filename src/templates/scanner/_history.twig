@@ -1,0 +1,47 @@
+{% extends 'garrison/_layouts/plugin' %}
+
+{% set title = 'Scan History'|t('garrison') %}
+{% set selectedSubnavItem = 'scanner' %}
+
+{% do view.registerAssetBundle('justinholtweb\\garrison\\web\\assets\\cp\\CpAsset') %}
+
+{% block pluginContent %}
+    {% if scans|length %}
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th>{{ 'Date'|t('garrison') }}</th>
+                    <th>{{ 'Status'|t('garrison') }}</th>
+                    <th>{{ 'Risk Score'|t('garrison') }}</th>
+                    <th>{{ 'Checks'|t('garrison') }}</th>
+                    <th>{{ 'Triggered By'|t('garrison') }}</th>
+                    <th>{{ 'Duration'|t('garrison') }}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scan in scans %}
+                    <tr>
+                        <td>{{ scan.dateCreated ? scan.dateCreated|date('M j, Y g:i A') : 'N/A' }}</td>
+                        <td><span class="garrison-status garrison-status--{{ scan.status.color() }}">{{ scan.status.label() }}</span></td>
+                        <td>
+                            <span class="garrison-badge garrison-badge--{{ scan.riskColor() }}">{{ scan.riskScore }}</span>
+                        </td>
+                        <td>{{ scan.passedChecks }}/{{ scan.totalChecks }} passed</td>
+                        <td>{{ scan.triggeredBy }}</td>
+                        <td>{{ scan.duration }}s</td>
+                        <td><a href="{{ url('garrison/scanner/results/' ~ scan.id) }}" class="btn small">{{ 'View'|t('garrison') }}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="garrison-empty">
+            <p>{{ 'No scan history yet.'|t('garrison') }}</p>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block actionButton %}
+    <a href="{{ url('garrison/scanner') }}" class="btn">{{ 'Back to Scanner'|t('garrison') }}</a>
+{% endblock %}

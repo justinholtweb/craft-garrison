@@ -1,0 +1,12 @@
+{% extends 'garrison/_layouts/plugin' %}
+
+{% set title = 'Rate Limiting'|t('garrison') %}
+{% set selectedSubnavItem = 'shield' %}
+
+{% block pluginContent %}
+    <p>{{ 'Configure request rate limiting. Implemented in Phase 3.'|t('garrison') }}</p>
+{% endblock %}
+
+{% block actionButton %}
+    <a href="{{ url('garrison/shield') }}" class="btn">{{ 'Back to Shield'|t('garrison') }}</a>
+{% endblock %}

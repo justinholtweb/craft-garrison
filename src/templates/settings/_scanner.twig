@@ -1,0 +1,35 @@
+{% extends 'garrison/_layouts/plugin' %}
+
+{% set title = 'Scanner Settings'|t('garrison') %}
+{% set selectedSubnavItem = 'settings' %}
+
+{% block pluginContent %}
+    <h2>{{ 'Available Security Checks'|t('garrison') }}</h2>
+
+    <table class="data fullwidth">
+        <thead>
+            <tr>
+                <th>{{ 'Handle'|t('garrison') }}</th>
+                <th>{{ 'Name'|t('garrison') }}</th>
+                <th>{{ 'Category'|t('garrison') }}</th>
+                <th>{{ 'Severity'|t('garrison') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for handle, check in checks %}
+                <tr>
+                    <td><code>{{ check.getHandle() }}</code></td>
+                    <td>{{ check.getName() }}</td>
+                    <td>{{ check.getCategory().label() }}</td>
+                    <td>{{ check.getDefaultSeverity().label() }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p class="light">{{ 'To disable specific checks, set the `enabledChecks` config setting in your garrison.php config file.'|t('garrison') }}</p>
+{% endblock %}
+
+{% block actionButton %}
+    <a href="{{ url('garrison/settings') }}" class="btn">{{ 'Back to Settings'|t('garrison') }}</a>
+{% endblock %}

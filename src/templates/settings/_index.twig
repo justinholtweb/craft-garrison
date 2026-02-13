@@ -1,0 +1,111 @@
+{% extends 'garrison/_layouts/plugin' %}
+
+{% set title = 'Garrison Settings'|t('garrison') %}
+{% set selectedSubnavItem = 'settings' %}
+{% set fullPageForm = true %}
+
+{% block pluginContent %}
+    <input type="hidden" name="action" value="garrison/settings/save">
+    {{ redirectInput('garrison/settings') }}
+
+    <div id="fields">
+        <h2>{{ 'Login Protection'|t('garrison') }}</h2>
+
+        {{ forms.textField({
+            label: 'Max Login Attempts'|t('garrison'),
+            instructions: 'Number of failed login attempts before lockout.'|t('garrison'),
+            id: 'maxLoginAttempts',
+            name: 'settings[maxLoginAttempts]',
+            value: settings.maxLoginAttempts,
+            type: 'number',
+            min: 1,
+            max: 100,
+        }) }}
+
+        {{ forms.textField({
+            label: 'Lockout Duration'|t('garrison'),
+            instructions: 'How long to lock out an IP after exceeding max attempts (seconds).'|t('garrison'),
+            id: 'lockoutDuration',
+            name: 'settings[lockoutDuration]',
+            value: settings.lockoutDuration,
+            type: 'number',
+            min: 60,
+        }) }}
+
+        {{ forms.textField({
+            label: 'Attempt Window'|t('garrison'),
+            instructions: 'Time window for counting login attempts (seconds).'|t('garrison'),
+            id: 'loginAttemptWindow',
+            name: 'settings[loginAttemptWindow]',
+            value: settings.loginAttemptWindow,
+            type: 'number',
+            min: 60,
+        }) }}
+
+        <hr>
+
+        <h2>{{ 'Audit Logging'|t('garrison') }}</h2>
+
+        {{ forms.lightswitchField({
+            label: 'Enable Audit Log'|t('garrison'),
+            instructions: 'Track user and system actions.'|t('garrison'),
+            id: 'enableAuditLog',
+            name: 'settings[enableAuditLog]',
+            on: settings.enableAuditLog,
+        }) }}
+
+        <hr>
+
+        <h2>{{ 'Scanning'|t('garrison') }}</h2>
+
+        {{ forms.selectField({
+            label: 'Scan Schedule'|t('garrison'),
+            instructions: 'How often to automatically run security scans. Requires Plus edition.'|t('garrison'),
+            id: 'scanSchedule',
+            name: 'settings[scanSchedule]',
+            value: settings.scanSchedule,
+            options: [
+                { label: 'Disabled', value: '' },
+                { label: 'Hourly', value: 'hourly' },
+                { label: 'Daily', value: 'daily' },
+                { label: 'Weekly', value: 'weekly' },
+                { label: 'Monthly', value: 'monthly' },
+            ],
+        }) }}
+
+        {{ forms.textField({
+            label: 'Scan Schedule Hour'|t('garrison'),
+            instructions: 'Hour of day (0-23) for daily/weekly/monthly scans.'|t('garrison'),
+            id: 'scanScheduleHour',
+            name: 'settings[scanScheduleHour]',
+            value: settings.scanScheduleHour,
+            type: 'number',
+            min: 0,
+            max: 23,
+        }) }}
+
+        <hr>
+
+        <h2>{{ 'Data Retention'|t('garrison') }}</h2>
+
+        {{ forms.textField({
+            label: 'Prune Blocked Requests'|t('garrison'),
+            instructions: 'Delete blocked request logs older than this many days.'|t('garrison'),
+            id: 'pruneBlockedRequestsDays',
+            name: 'settings[pruneBlockedRequestsDays]',
+            value: settings.pruneBlockedRequestsDays,
+            type: 'number',
+            min: 1,
+        }) }}
+
+        {{ forms.textField({
+            label: 'Prune Login Attempts'|t('garrison'),
+            instructions: 'Delete login attempt logs older than this many days.'|t('garrison'),
+            id: 'pruneLoginAttemptsDays',
+            name: 'settings[pruneLoginAttemptsDays]',
+            value: settings.pruneLoginAttemptsDays,
+            type: 'number',
+            min: 1,
+        }) }}
+    </div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'garrison/_layouts/plugin' %}
+
+{% set title = 'Advanced Settings'|t('garrison') %}
+{% set selectedSubnavItem = 'settings' %}
+
+{% block pluginContent %}
+    <h2>{{ 'Advanced Configuration'|t('garrison') }}</h2>
+
+    <p>{{ 'Advanced settings are configured via the config/garrison.php config file for multi-environment support.'|t('garrison') }}</p>
+
+    <h3>{{ 'Config File'|t('garrison') }}</h3>
+    <p>{{ 'Copy src/config.php to config/garrison.php in your Craft project and adjust as needed.'|t('garrison') }}</p>
+
+    <h3>{{ 'Current Edition'|t('garrison') }}</h3>
+    <p>
+        <span class="garrison-edition-badge">{{ craft.app.plugins.getPlugin('garrison').edition|upper }}</span>
+    </p>
+{% endblock %}
+
+{% block actionButton %}
+    <a href="{{ url('garrison/settings') }}" class="btn">{{ 'Back to Settings'|t('garrison') }}</a>
+{% endblock %}

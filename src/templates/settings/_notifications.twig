@@ -1,0 +1,72 @@
+{% extends 'garrison/_layouts/plugin' %}
+
+{% set title = 'Notification Settings'|t('garrison') %}
+{% set selectedSubnavItem = 'settings' %}
+{% set fullPageForm = true %}
+
+{% block pluginContent %}
+    <input type="hidden" name="action" value="garrison/settings/save">
+    {{ redirectInput('garrison/settings/notifications') }}
+
+    <div id="fields">
+        <h2>{{ 'Notifications'|t('garrison') }}</h2>
+
+        {{ forms.lightswitchField({
+            label: 'Enable Notifications'|t('garrison'),
+            instructions: 'Send notifications when security events occur. Requires Plus edition.'|t('garrison'),
+            id: 'enableNotifications',
+            name: 'settings[enableNotifications]',
+            on: settings.enableNotifications,
+        }) }}
+
+        {{ forms.lightswitchField({
+            label: 'Notify on Scan Failure'|t('garrison'),
+            id: 'notifyOnScanFailure',
+            name: 'settings[notifyOnScanFailure]',
+            on: settings.notifyOnScanFailure,
+        }) }}
+
+        {{ forms.lightswitchField({
+            label: 'Notify on Threat Detected'|t('garrison'),
+            id: 'notifyOnThreatDetected',
+            name: 'settings[notifyOnThreatDetected]',
+            on: settings.notifyOnThreatDetected,
+        }) }}
+
+        {{ forms.lightswitchField({
+            label: 'Notify on Login Lockout'|t('garrison'),
+            id: 'notifyOnLoginLockout',
+            name: 'settings[notifyOnLoginLockout]',
+            on: settings.notifyOnLoginLockout,
+        }) }}
+
+        <hr>
+
+        <h2>{{ 'Channels'|t('garrison') }}</h2>
+
+        {{ forms.textField({
+            label: 'Slack Webhook URL'|t('garrison'),
+            id: 'slackWebhookUrl',
+            name: 'settings[slackWebhookUrl]',
+            value: settings.slackWebhookUrl,
+            type: 'url',
+        }) }}
+
+        {{ forms.textField({
+            label: 'Discord Webhook URL'|t('garrison'),
+            id: 'discordWebhookUrl',
+            name: 'settings[discordWebhookUrl]',
+            value: settings.discordWebhookUrl,
+            type: 'url',
+        }) }}
+
+        {{ forms.textField({
+            label: 'Custom Webhook URL'|t('garrison'),
+            instructions: 'JSON payload will be POSTed to this URL.'|t('garrison'),
+            id: 'webhookUrl',
+            name: 'settings[webhookUrl]',
+            value: settings.webhookUrl,
+            type: 'url',
+        }) }}
+    </div>
+{% endblock %}

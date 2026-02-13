@@ -1,0 +1,41 @@
+{% extends 'garrison/_layouts/plugin' %}
+
+{% set title = 'Shield'|t('garrison') %}
+{% set selectedSubnavItem = 'shield' %}
+
+{% do view.registerAssetBundle('justinholtweb\\garrison\\web\\assets\\cp\\CpAsset') %}
+
+{% block pluginContent %}
+    <div class="garrison-shield-nav">
+        <div class="garrison-card-grid">
+            <a href="{{ url('garrison/shield/login-protection') }}" class="garrison-nav-card garrison-card">
+                <h3>{{ 'Login Protection'|t('garrison') }}</h3>
+                <p>{{ 'Brute-force protection and login lockout settings.'|t('garrison') }}</p>
+            </a>
+
+            <a href="{{ url('garrison/shield/ip-management') }}" class="garrison-nav-card garrison-card">
+                <h3>{{ 'IP Management'|t('garrison') }}</h3>
+                <p>{{ 'Allow/block IP addresses and CIDR ranges.'|t('garrison') }}</p>
+                {% if not craft.app.plugins.getPlugin('garrison').is('plus') %}
+                    <span class="garrison-edition-badge">Plus</span>
+                {% endif %}
+            </a>
+
+            <a href="{{ url('garrison/shield/rate-limits') }}" class="garrison-nav-card garrison-card">
+                <h3>{{ 'Rate Limiting'|t('garrison') }}</h3>
+                <p>{{ 'Limit request rates to prevent abuse.'|t('garrison') }}</p>
+                {% if not craft.app.plugins.getPlugin('garrison').is('plus') %}
+                    <span class="garrison-edition-badge">Plus</span>
+                {% endif %}
+            </a>
+
+            <a href="{{ url('garrison/shield/waf') }}" class="garrison-nav-card garrison-card">
+                <h3>{{ 'WAF'|t('garrison') }}</h3>
+                <p>{{ 'Web Application Firewall request filtering.'|t('garrison') }}</p>
+                {% if not craft.app.plugins.getPlugin('garrison').is('pro') %}
+                    <span class="garrison-edition-badge">Pro</span>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+{% endblock %}

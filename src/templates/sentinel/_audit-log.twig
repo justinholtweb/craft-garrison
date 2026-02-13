@@ -1,0 +1,12 @@
+{% extends 'garrison/_layouts/plugin' %}
+
+{% set title = 'Audit Log'|t('garrison') %}
+{% set selectedSubnavItem = 'sentinel' %}
+
+{% block pluginContent %}
+    <p>{{ 'Audit logging of all user and system actions. Implemented in Phase 2.'|t('garrison') }}</p>
+{% endblock %}
+
+{% block actionButton %}
+    <a href="{{ url('garrison/sentinel') }}" class="btn">{{ 'Back to Sentinel'|t('garrison') }}</a>
+{% endblock %}

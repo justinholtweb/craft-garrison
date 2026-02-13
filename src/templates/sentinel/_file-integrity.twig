@@ -1,0 +1,12 @@
+{% extends 'garrison/_layouts/plugin' %}
+
+{% set title = 'File Integrity'|t('garrison') %}
+{% set selectedSubnavItem = 'sentinel' %}
+
+{% block pluginContent %}
+    <p>{{ 'File integrity monitoring with SHA-256 baselines. Implemented in Phase 4.'|t('garrison') }}</p>
+{% endblock %}
+
+{% block actionButton %}
+    <a href="{{ url('garrison/sentinel') }}" class="btn">{{ 'Back to Sentinel'|t('garrison') }}</a>
+{% endblock %}

@@ -1,0 +1,6 @@
+{# @param edition string (plus/pro) #}
+{# @param label string optional override #}
+
+<span class="garrison-edition-badge garrison-edition-badge--{{ edition }}">
+    {{ label ?? edition|capitalize }}
+</span>

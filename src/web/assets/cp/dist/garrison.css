@@ -1,0 +1,246 @@
+/* Garrison CP Styles */
+
+/* Cards */
+.garrison-card {
+    background: var(--white);
+    border: 1px solid var(--hairline-color);
+    border-radius: var(--large-border-radius);
+    padding: 24px;
+    margin-bottom: 16px;
+}
+
+.garrison-card h2,
+.garrison-card h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.garrison-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+/* Nav Cards */
+.garrison-nav-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    position: relative;
+}
+
+.garrison-nav-card:hover {
+    border-color: var(--link-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    color: inherit;
+}
+
+.garrison-nav-card p {
+    color: var(--medium-text-color);
+    margin: 0;
+}
+
+/* Risk Score */
+.garrison-risk-score {
+    text-align: center;
+    min-width: 160px;
+}
+
+.garrison-score-value {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.garrison-score-label {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.garrison-risk--green .garrison-score-value,
+.garrison-risk--green .garrison-score-label { color: var(--enabled-color, #27AE60); }
+.garrison-risk--blue .garrison-score-value,
+.garrison-risk--blue .garrison-score-label { color: var(--link-color, #0D99F2); }
+.garrison-risk--orange .garrison-score-value,
+.garrison-risk--orange .garrison-score-label { color: var(--warning-color, #E5A000); }
+.garrison-risk--red .garrison-score-value,
+.garrison-risk--red .garrison-score-label { color: var(--error-color, #CF1124); }
+
+/* Summary Layout */
+.garrison-summary,
+.garrison-scan-summary,
+.garrison-results-header {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.garrison-summary .garrison-risk-score,
+.garrison-scan-summary .garrison-risk-score,
+.garrison-results-header .garrison-risk-score {
+    flex-shrink: 0;
+}
+
+.garrison-summary .garrison-card:not(.garrison-risk-score),
+.garrison-scan-summary .garrison-card:not(.garrison-risk-score),
+.garrison-results-header .garrison-card:not(.garrison-risk-score) {
+    flex-grow: 1;
+}
+
+/* Stat Grid */
+.garrison-stat-grid {
+    display: flex;
+    gap: 24px;
+    margin: 16px 0;
+}
+
+.garrison-stat {
+    text-align: center;
+}
+
+.garrison-stat-value {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.garrison-stat-label {
+    font-size: 12px;
+    color: var(--medium-text-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.garrison-stat-value.status-passed { color: var(--enabled-color, #27AE60); }
+.garrison-stat-value.status-warning { color: var(--warning-color, #E5A000); }
+.garrison-stat-value.status-failed { color: var(--error-color, #CF1124); }
+.garrison-stat-value.status-critical { color: var(--error-color, #CF1124); }
+
+/* Scan Meta */
+.garrison-scan-meta {
+    font-size: 12px;
+    color: var(--light-text-color);
+    margin-top: 12px;
+}
+
+/* Status Badges */
+.garrison-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.garrison-status--green { background: rgba(39, 174, 96, 0.1); color: #27AE60; }
+.garrison-status--orange { background: rgba(229, 160, 0, 0.1); color: #E5A000; }
+.garrison-status--red { background: rgba(207, 17, 36, 0.1); color: #CF1124; }
+.garrison-status--grey { background: rgba(0, 0, 0, 0.05); color: var(--medium-text-color); }
+
+/* Severity Badges */
+.garrison-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.garrison-badge--blue { background: rgba(13, 153, 242, 0.1); color: #0D99F2; }
+.garrison-badge--grey { background: rgba(0, 0, 0, 0.05); color: var(--medium-text-color); }
+.garrison-badge--orange { background: rgba(229, 160, 0, 0.1); color: #E5A000; }
+.garrison-badge--red { background: rgba(207, 17, 36, 0.1); color: #CF1124; }
+.garrison-badge--green { background: rgba(39, 174, 96, 0.1); color: #27AE60; }
+
+/* Icons */
+.garrison-icon { font-size: 16px; }
+.garrison-icon--green { color: var(--enabled-color, #27AE60); }
+.garrison-icon--orange { color: var(--warning-color, #E5A000); }
+.garrison-icon--red { color: var(--error-color, #CF1124); }
+.garrison-icon--grey { color: var(--medium-text-color); }
+
+/* Remediation */
+.garrison-remediation {
+    margin-top: 4px;
+    padding: 6px 10px;
+    background: rgba(13, 153, 242, 0.05);
+    border-left: 3px solid var(--link-color, #0D99F2);
+    font-size: 12px;
+    color: var(--medium-dark-text-color);
+    border-radius: 0 3px 3px 0;
+}
+
+/* Edition Badge */
+.garrison-edition-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--link-color, #0D99F2);
+    color: white;
+}
+
+.garrison-edition-badge--pro {
+    background: #9B59B6;
+}
+
+/* Results Meta */
+.garrison-results-meta dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 16px;
+    margin: 0;
+}
+
+.garrison-results-meta dt {
+    font-weight: 600;
+    color: var(--medium-text-color);
+}
+
+.garrison-results-meta dd {
+    margin: 0;
+}
+
+/* Empty State */
+.garrison-empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--medium-text-color);
+}
+
+.garrison-empty p {
+    margin-bottom: 16px;
+}
+
+/* Actions */
+.garrison-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .garrison-summary,
+    .garrison-scan-summary,
+    .garrison-results-header {
+        flex-direction: column;
+    }
+
+    .garrison-stat-grid {
+        flex-wrap: wrap;
+    }
+}
