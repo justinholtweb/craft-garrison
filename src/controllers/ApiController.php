@@ -8,7 +8,9 @@ use justinholtweb\garrison\models\Edition;
 
 class ApiController extends Controller
 {
-    protected array|bool|int $allowAnonymous = true;
+    // Default to authenticated. Subclasses must explicitly opt in to anonymous actions
+    // and implement their own auth (token, HMAC, etc.) before flipping this.
+    protected array|bool|int $allowAnonymous = false;
 
     public function beforeAction($action): bool
     {
@@ -18,7 +20,6 @@ class ApiController extends Controller
 
         Edition::requiresPlus('REST API');
 
-        // API authentication will be implemented in Phase 4
         return true;
     }
 }
