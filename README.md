@@ -1,32 +1,27 @@
 # Garrison — Security Suite for Craft CMS
 
-Comprehensive security plugin for Craft CMS 5. Vulnerability scanning, active protection, audit logging, and multi-channel notifications in a single install.
+Comprehensive security plugin for Craft CMS 5. Vulnerability scanning, active request protection, audit logging, file integrity monitoring, and multi-channel notifications in a single install.
 
 ## Editions
 
 | Feature | Lite (Free) | Plus | Pro |
 |---------|:-----------:|:----:|:---:|
 | Security scanner (14 checks) | ✓ | ✓ | ✓ |
-| CMS config / headers / CSP checks | ✓ | ✓ | ✓ |
-| Login brute-force protection | ✓ | ✓ | ✓ |
+| Remediation guidance per check | ✓ | ✓ | ✓ |
+| Login brute-force protection & lockout | ✓ | ✓ | ✓ |
 | Audit logging | 30 days | 90 days | 365 days |
 | Console commands | ✓ | ✓ | ✓ |
 | Scan history | Last 10 | Unlimited | Unlimited |
+| Multi-site scans | ✓ | ✓ | ✓ |
 | Scheduled scans (queue-based) | — | ✓ | ✓ |
-| CP alerts on failed scan | — | ✓ | ✓ |
-| Email notifications | — | ✓ | ✓ |
-| Slack / Discord / Webhook | — | ✓ | ✓ |
-| IP restriction (CP + frontend, CIDR) | — | ✓ | ✓ |
-| HTTP Basic Auth | — | ✓ | ✓ |
-| File integrity monitoring | — | ✓ | ✓ |
-| REST API | — | ✓ | ✓ |
-| Multi-site scans | — | ✓ | ✓ |
+| Email / Slack / Discord / webhook alerts | — | ✓ | ✓ |
+| IP allow/block rules (CP + frontend, CIDR) | — | ✓ | ✓ |
 | Rate limiting | — | ✓ | ✓ |
+| File integrity monitoring | — | ✓ | ✓ |
+| REST API (authenticated) | — | ✓ | ✓ |
 | WAF / request filtering | — | — | ✓ |
 | Geo-blocking | — | — | ✓ |
-| Dashboard analytics + trends | — | — | ✓ |
-| Risk score trending | — | — | ✓ |
-| Auto-remediation suggestions | — | — | ✓ |
+| Dashboard threat analytics | — | — | ✓ |
 
 ## Requirements
 
@@ -76,91 +71,95 @@ return [
 
 ### Scanner
 
-Runs 14 security checks against your site and produces a risk score (0–100):
+Runs 14 security checks against your site and produces a risk score (0–100). Every check returns plain-language remediation guidance:
 
-- **CMS Configuration** — dev mode, admin changes, test email, session duration, GraphQL origins
-- **HTTPS** — verifies site is served over TLS
-- **CSRF Protection** — confirms CSRF tokens are enabled
-- **File Permissions** — checks .env, config/, web/index.php for unsafe permissions
-- **PHP Version** — flags EOL or soon-to-expire PHP versions
-- **HTTP Headers** — X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
-- **Content Security Policy** — checks for CSP header presence and configuration
-- **CORS** — validates cross-origin resource sharing settings
-- **CMS Version** — flags outdated Craft CMS installations
-- **Plugin Versions** — checks for plugins with available updates
-- **Database Security** — table prefix usage, default credentials
-- **Admin Accounts** — flags accounts using weak or default usernames
-- **SSL Certificate** — checks certificate expiry
-- **File Permissions (detailed)** — world-readable/writable sensitive paths
+1. **CMS Configuration** — dev mode, admin changes, test email, elevated session duration, wildcard GraphQL origins
+2. **HTTPS** — verifies the site is served over TLS
+3. **CSRF Protection** — confirms CSRF tokens are enabled
+4. **File Permissions** — checks `.env`, `config/`, `web/index.php` for unsafe permissions
+5. **PHP Version** — flags EOL or soon-to-expire PHP versions
+6. **Application Security Key** — confirms a strong `securityKey` is set
+7. **Cookie Security** — `useSecureCookies` and `sameSiteCookieValue` policy
+8. **Upload Sanitization** — `sanitizeSvgUploads` and `sanitizeCpImageUploads`
+9. **Web Root Exposure** — sensitive files (`.env`, composer manifests, `.git`) under the public root
+10. **Software Updates** — pending Craft / plugin updates (uses cached update info)
+11. **GraphQL Introspection** — flags introspection left on in production
+12. **X-Powered-By Header** — flags the `sendPoweredByHeader` information disclosure
+13. **Session Duration** — flags unusually long authenticated sessions
+14. **Admin Usernames** — flags predictable admin usernames (`admin`, `root`, …)
 
-Risk score weights: Critical (+25), High (+15), Medium (+8), Low (+3), Warning (+1).
+Risk score weights: Critical (+25), High (+15), Medium (+8), Low (+3).
+
+To disable specific checks, set the `enabledChecks` array in `config/garrison.php`.
 
 ### Shield
 
-Active request-level protection. Checks run on every request, ordered cheapest to most expensive:
+Active request-level protection, evaluated on `Application::EVENT_BEFORE_REQUEST`. Checks run cheapest first; control-panel traffic is exempt from rate limiting, geo-blocking, and the WAF to avoid locking out administrators:
 
-1. **IP blocklist** — in-memory cached lookup → 403
-2. **Login lockout** — brute-force threshold check → 403
-3. **IP allowlist** — optional restrict-to-list mode → 403
-4. **Geo-blocking** (Pro) — country-based blocking → 403
-5. **Rate limiting** — cache-based atomic increments → 429
-6. **WAF rules** (Pro) — compiled regex patterns for SQL injection, XSS, path traversal, user-agent filtering → 403
+1. **IP allow/block rules** — exact, CIDR, or wildcard patterns, scoped to CP / frontend / everywhere → 403
+2. **Login lockout** — failed-attempt threshold enforced before the password is checked → 403 / 429
+3. **Geo-blocking** (Pro) — block or allowlist by country, resolved from an upstream country header (Cloudflare `CF-IPCountry` by default) → 403
+4. **Rate limiting** (Plus+) — fixed-window per-IP counter backed by Craft's cache → 429
+5. **WAF rules** (Pro) — regex signatures for SQL injection, XSS, path traversal, and malicious user agents → 403
+
+Every block is recorded in the database and fires a `ThreatDetectedEvent`.
 
 ### Sentinel
 
 Monitoring and audit trail:
 
-- **Audit log** — tracks logins, logouts, failed logins, element saves/deletes, plugin installs, project config changes, user events
-- **File integrity** (Plus+) — SHA-256 baselines stored in the database; detects modified, added, or deleted files in monitored paths
+- **Audit log** — records logins, failed logins, logouts, element creation/deletion, plugin install/uninstall/enable/disable, and user suspend/activate events, with the acting user, IP, and user agent
+- **File integrity** (Plus+) — SHA-256 baselines stored in the database; detects modified, deleted, and added files across the monitored paths
 
 Default monitored paths: `vendor/craftcms/cms/src/`, `config/`, `.env`, `web/index.php`.
 
 ### Beacon
 
-Multi-channel notifications (Plus+):
+Multi-channel notifications (Plus+), delivered via a queue job so a slow webhook never blocks a request:
 
 - **Email** — via Craft's built-in mailer
-- **Slack** — webhook URL
+- **Slack** — incoming webhook URL
 - **Discord** — webhook URL
-- **Webhook** — generic POST with JSON payload
+- **Webhook** — generic POST with a JSON payload
 
-Triggers: scan failure, threat detection, login lockout.
+Triggers: scan failure, threat detection, login lockout, and file integrity changes. Threat notifications are de-duplicated per IP so floods don't spam your channels.
 
 ## Console Commands
 
 ```bash
 # Run a security scan
 php craft garrison/scan/run
-php craft garrison/scan/run --site-id=1
+php craft garrison/scan/run --siteId=1
 
-# Check last scan status
+# Show the last scan status
 php craft garrison/scan/status
 
-# IP management
-php craft garrison/shield/block-ip 1.2.3.4
-php craft garrison/shield/unblock-ip 1.2.3.4
+# IP management (Plus+)
+php craft garrison/shield/block 203.0.113.4 --label="abuse"
+php craft garrison/shield/allow 10.0.0.0/8 --scope=cp
 php craft garrison/shield/list
+php craft garrison/shield/remove 3
 
-# File integrity
-php craft garrison/sentinel/baseline
-php craft garrison/sentinel/check
-
-# Data pruning
-php craft garrison/prune
+# File integrity (Plus+)
+php craft garrison/integrity/baseline
+php craft garrison/integrity/check
 ```
 
 ## REST API (Plus+)
 
+The API is authenticated through Craft's session and permission system — callers must be signed-in control-panel users with the relevant Garrison permissions. All endpoints return JSON and live under the control-panel trigger (e.g. `/admin`).
+
 ```
-GET  garrison/api/v1/scan/run       Run a scan
-GET  garrison/api/v1/scan/last      Last scan results
-GET  garrison/api/v1/scan/all       All scans
-GET  garrison/api/v1/scan/<id>      Specific scan
-GET  garrison/api/v1/shield/status  Shield status
-POST garrison/api/v1/shield/block   Block an IP
-POST garrison/api/v1/shield/unblock Unblock an IP
-GET  garrison/api/v1/sentinel/log   Audit log
+GET  garrison/api/v1/scan/last       Last scan summary
+POST garrison/api/v1/scan/run        Run a scan (requires "Run security scans")
+GET  garrison/api/v1/scan/<id>       A specific scan with full results
+GET  garrison/api/v1/shield/status   Blocked-request count and rule count
+GET  garrison/api/v1/sentinel/log    Recent audit-log entries (requires "View audit log")
 ```
+
+## Scheduled Scans (Plus+)
+
+Set `scanSchedule` to `hourly`, `daily`, `weekly`, or `monthly`. Garrison enqueues a `RunScanJob` once the interval has elapsed since the last scan; the check is throttled to run at most once a minute and only on web requests. For deterministic timing you can instead drive `php craft garrison/scan/run` from system cron.
 
 ## Permissions
 
@@ -169,24 +168,29 @@ GET  garrison/api/v1/sentinel/log   Audit log
 | Access Garrison | View the Garrison CP section |
 | Run security scans | Execute manual scans |
 | View audit log | Access the Sentinel audit log |
-| Manage shield rules | Add/remove IP rules and shield settings |
+| Manage shield rules | Add/remove IP rules, manage file baselines |
 | Manage Garrison settings | Access plugin settings |
 
 ## Events
 
-Garrison fires custom events for extensibility:
-
 | Event | Class | When |
 |-------|-------|------|
-| `ScanEvent` | `justinholtweb\garrison\events\ScanEvent` | After a scan completes |
-| `ThreatDetectedEvent` | `justinholtweb\garrison\events\ThreatDetectedEvent` | When Shield blocks a request |
-| `AuditEvent` | `justinholtweb\garrison\events\AuditEvent` | When an audit log entry is created |
+| `EVENT_AFTER_SCAN` | `services\Scanner` (`ScanEvent`) | After a scan completes |
+| `EVENT_THREAT_DETECTED` | `services\Shield` (`ThreatDetectedEvent`) | When Shield blocks a request |
 
 ## Widgets
 
-- **Security Score** — displays current risk score on the Craft dashboard
-- **Recent Threats** — shows recently blocked requests (Pro)
+- **Security Score** — current risk score on the Craft dashboard
+- **Recent Threats** — recently blocked requests
+
+## Development
+
+```bash
+composer test      # run the unit suite (Codeception)
+composer ecs       # check coding standard
+composer phpstan   # static analysis (level 5)
+```
 
 ## License
 
-This plugin requires a license purchased through the [Craft Plugin Store](https://plugins.craftcms.com). The Lite edition is free. See [LICENSE.md](LICENSE.md).
+This is a commercial plugin licensed through the [Craft Plugin Store](https://plugins.craftcms.com). The Lite edition is free. See [LICENSE.md](LICENSE.md).

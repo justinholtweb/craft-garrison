@@ -1,7 +1,12 @@
 /vendor/
 /node_modules/
+/composer.lock
 .DS_Store
 .idea/
 .vscode/
 *.swp
 *.swo
+
+# Codeception
+/tests/_output/
+/tests/_support/_generated/

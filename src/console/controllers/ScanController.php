@@ -2,7 +2,6 @@
 
 namespace justinholtweb\garrison\console\controllers;
 
-use Craft;
 use craft\console\Controller;
 use justinholtweb\garrison\Plugin;
 use yii\console\ExitCode;

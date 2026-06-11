@@ -2,11 +2,79 @@
 
 {% set title = 'Login Protection'|t('garrison') %}
 {% set selectedSubnavItem = 'shield' %}
+{% set fullPageForm = true %}
 
 {% block pluginContent %}
-    <p>{{ 'Brute-force protection and login lockout. Implemented in Phase 3.'|t('garrison') }}</p>
-{% endblock %}
+    <input type="hidden" name="action" value="garrison/settings/save">
+    {{ redirectInput('garrison/shield/login-protection') }}
 
-{% block actionButton %}
-    <a href="{{ url('garrison/shield') }}" class="btn">{{ 'Back to Shield'|t('garrison') }}</a>
+    <div id="fields">
+        <p class="light">{{ 'Garrison locks out an IP address after too many failed login attempts within the configured window. Lockouts are enforced before the password is ever checked.'|t('garrison') }}</p>
+
+        {{ forms.textField({
+            label: 'Max Login Attempts'|t('garrison'),
+            instructions: 'Failed attempts allowed before lockout.'|t('garrison'),
+            name: 'settings[maxLoginAttempts]',
+            value: settings.maxLoginAttempts,
+            type: 'number',
+            min: 1,
+            max: 100,
+        }) }}
+
+        {{ forms.textField({
+            label: 'Lockout Duration'|t('garrison'),
+            instructions: 'How long a lockout lasts (seconds).'|t('garrison'),
+            name: 'settings[lockoutDuration]',
+            value: settings.lockoutDuration,
+            type: 'number',
+            min: 60,
+        }) }}
+
+        {{ forms.textField({
+            label: 'Attempt Window'|t('garrison'),
+            instructions: 'Time window for counting failed attempts (seconds).'|t('garrison'),
+            name: 'settings[loginAttemptWindow]',
+            value: settings.loginAttemptWindow,
+            type: 'number',
+            min: 60,
+        }) }}
+
+        {{ forms.lightswitchField({
+            label: 'Notify on Lockout'|t('garrison'),
+            instructions: 'Send a notification when an IP is locked out (requires notifications to be enabled).'|t('garrison'),
+            name: 'settings[notifyOnLoginLockout]',
+            on: settings.notifyOnLoginLockout,
+        }) }}
+
+        <hr>
+
+        <h2>{{ 'Recent Blocked Requests'|t('garrison') }}</h2>
+
+        {% if blocked is empty %}
+            <p class="light">{{ 'No requests have been blocked yet.'|t('garrison') }}</p>
+        {% else %}
+            <table class="data fullwidth">
+                <thead>
+                    <tr>
+                        <th>{{ 'Reason'|t('garrison') }}</th>
+                        <th>{{ 'IP Address'|t('garrison') }}</th>
+                        <th>{{ 'Method'|t('garrison') }}</th>
+                        <th>{{ 'URI'|t('garrison') }}</th>
+                        <th>{{ 'When'|t('garrison') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in blocked %}
+                        <tr>
+                            <td>{{ request.reason }}</td>
+                            <td><code>{{ request.ipAddress }}</code></td>
+                            <td>{{ request.requestMethod }}</td>
+                            <td class="light" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ request.requestUri }}</td>
+                            <td>{{ request.dateCreated|date('M j, Y g:i A') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
 {% endblock %}

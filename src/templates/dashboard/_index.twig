@@ -53,5 +53,34 @@
                 <a href="{{ url('garrison/scanner') }}" class="btn submit">{{ 'Run Your First Scan'|t('garrison') }}</a>
             </div>
         {% endif %}
+
+        <div class="garrison-card" style="margin-top:24px">
+            <h2>{{ 'Shield Activity'|t('garrison') }}</h2>
+            <div class="garrison-stat-grid">
+                <div class="garrison-stat">
+                    <span class="garrison-stat-value">{{ summary.blocked7d }}</span>
+                    <span class="garrison-stat-label">{{ 'Blocked (7 days)'|t('garrison') }}</span>
+                </div>
+                <div class="garrison-stat">
+                    <span class="garrison-stat-value">{{ summary.threats }}</span>
+                    <span class="garrison-stat-label">{{ 'Total Blocked'|t('garrison') }}</span>
+                </div>
+                <div class="garrison-stat">
+                    <span class="garrison-stat-value">{{ summary.baselineFiles }}</span>
+                    <span class="garrison-stat-label">{{ 'Baselined Files'|t('garrison') }}</span>
+                </div>
+            </div>
+
+            {% if isPro and threatStats is not empty %}
+                <h3 style="margin-top:16px">{{ 'Threats by Type (30 days)'|t('garrison') }}</h3>
+                <ul>
+                    {% for reason, count in threatStats %}
+                        <li>{{ reason }}: <strong>{{ count }}</strong></li>
+                    {% endfor %}
+                </ul>
+            {% elseif not isPro %}
+                <p class="light" style="margin-top:12px">{{ 'Threat analytics and risk-score trends are available in Garrison Pro.'|t('garrison') }}</p>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}

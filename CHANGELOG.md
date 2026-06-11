@@ -1,19 +1,37 @@
 # Changelog
 
-## 1.0.0 - Unreleased
+## 5.0.0 - Unreleased
 
 ### Added
-- Initial release
-- Security scanner with 14 checks
-- Login brute-force protection (Lite+)
-- Audit logging (Lite+)
-- File integrity monitoring (Plus+)
-- IP management with CIDR support (Plus+)
-- Rate limiting (Plus+)
-- WAF request filtering (Pro)
-- Geo-blocking (Pro)
-- Multi-channel notifications: email, Slack, Discord, webhooks (Plus+)
-- REST API (Plus+)
-- Dashboard analytics with risk score trending (Pro)
-- Console commands for scanning, IP management, and file integrity
-- CP widgets: Security Score, Recent Threats
+
+#### Scanner (all editions)
+- Security scanner with 14 checks: CMS configuration, HTTPS, CSRF, file permissions, PHP version, application security key, cookie security, upload sanitization, web-root exposure, software updates, GraphQL introspection, X-Powered-By header, session duration, and predictable admin usernames
+- 0–100 risk score with per-check remediation guidance
+- Scan history (last 10 on Lite, unlimited on Plus/Pro) and multi-site scans
+- `garrison/scan/run` and `garrison/scan/status` console commands
+
+#### Shield — active protection
+- Login brute-force protection with IP lockout, enforced before the password is checked (all editions)
+- IP allow/block rules with exact, CIDR, and wildcard matching, scoped to CP / frontend / everywhere (Plus+)
+- Rate limiting with a per-IP fixed window (Plus+)
+- WAF request filtering for SQL injection, XSS, path traversal, and malicious user agents (Pro)
+- Geo-blocking via an upstream country header (Pro)
+- `garrison/shield/block`, `allow`, `list`, and `remove` console commands
+
+#### Sentinel — audit & integrity
+- Audit logging of authentication, element, plugin, and user events with edition-based retention (30/90/365 days)
+- File integrity monitoring with SHA-256 baselines and change detection (Plus+)
+- `garrison/integrity/baseline` and `garrison/integrity/check` console commands
+
+#### Beacon — notifications (Plus+)
+- Queue-based notifications over email, Slack, Discord, and generic webhooks
+- Triggers for scan failures, detected threats, login lockouts, and file integrity changes, de-duplicated per IP
+
+#### Dashboard & API
+- Dashboard with risk score, last-scan summary, and Shield activity; threat analytics on Pro
+- Security Score and Recent Threats control-panel widgets
+- Authenticated REST API for scans, Shield status, and the audit log (Plus+)
+- Queue-based scheduled scans (Plus+)
+
+### Notes
+- Requires Craft CMS 5.0+ and PHP 8.2+.

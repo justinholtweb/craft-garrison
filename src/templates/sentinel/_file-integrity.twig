@@ -4,7 +4,64 @@
 {% set selectedSubnavItem = 'sentinel' %}
 
 {% block pluginContent %}
-    <p>{{ 'File integrity monitoring with SHA-256 baselines. Implemented in Phase 4.'|t('garrison') }}</p>
+    <p class="light">{{ 'Garrison records a SHA-256 baseline of your monitored files, then detects modifications, deletions, and additions on demand.'|t('garrison') }}</p>
+
+    <div class="garrison-card" style="padding:16px;margin-bottom:24px">
+        <p>
+            {% if baselineCount > 0 %}
+                {{ '{count} files in the current baseline.'|t('garrison', { count: baselineCount }) }}
+            {% else %}
+                {{ 'No baseline recorded yet.'|t('garrison') }}
+            {% endif %}
+        </p>
+
+        <div style="display:flex;gap:8px;margin-top:8px">
+            <form method="post" accept-charset="UTF-8">
+                {{ csrfInput() }}
+                <input type="hidden" name="action" value="garrison/sentinel/create-baseline">
+                {{ redirectInput('garrison/sentinel/file-integrity') }}
+                <button type="submit" class="btn submit">{{ baselineCount > 0 ? 'Rebuild Baseline'|t('garrison') : 'Create Baseline'|t('garrison') }}</button>
+            </form>
+
+            {% if baselineCount > 0 %}
+                <form method="post" accept-charset="UTF-8">
+                    {{ csrfInput() }}
+                    <input type="hidden" name="action" value="garrison/sentinel/run-integrity-check">
+                    {{ redirectInput('garrison/sentinel/file-integrity') }}
+                    <button type="submit" class="btn">{{ 'Run Integrity Check'|t('garrison') }}</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <h2>{{ 'Monitored Paths'|t('garrison') }}</h2>
+    <ul>
+        {% for path in monitoredPaths %}
+            <li><code>{{ path }}</code></li>
+        {% endfor %}
+    </ul>
+
+    {% if changed is not empty %}
+        <h2>{{ 'Detected Changes'|t('garrison') }}</h2>
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th>{{ 'Status'|t('garrison') }}</th>
+                    <th>{{ 'File'|t('garrison') }}</th>
+                    <th>{{ 'Last Checked'|t('garrison') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in changed %}
+                    <tr>
+                        <td><span class="status {{ file.status == 'deleted' ? 'red' : 'orange' }}"></span> {{ file.status|capitalize }}</td>
+                        <td><code>{{ file.filePath }}</code></td>
+                        <td class="light">{{ file.lastChecked ? file.lastChecked|date('M j, Y g:i A') : '—' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 {% endblock %}
 
 {% block actionButton %}

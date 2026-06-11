@@ -1,10 +1,10 @@
 {
     "name": "justinholtweb/craft-garrison",
     "description": "Comprehensive security suite for Craft CMS — scanning, active protection, audit logging, and notifications.",
-    "version": "1.0.0",
     "type": "craft-plugin",
     "license": "proprietary",
     "minimum-stability": "dev",
+    "version": "5.0.0",
     "prefer-stable": true,
     "require": {
         "php": "^8.2",
@@ -20,18 +20,35 @@
             "justinholtweb\\garrison\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "justinholtweb\\garrison\\tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "codecept run unit",
+        "ecs": "ecs check",
+        "ecs-fix": "ecs check --fix",
+        "phpstan": "phpstan analyse"
+    },
     "support": {
-        "email": "justin@justinholtweb.com",
+        "email": "justin@justinholt.com",
         "issues": "https://github.com/justinholtweb/craft-garrison/issues",
-        "docs": "https://github.com/justinholtweb/craft-garrison/blob/main/README.md"
+        "docs": "https://craft-garrison.com/docs"
+    },
+    "config": {
+        "allow-plugins": {
+            "craftcms/plugin-installer": true,
+            "yiisoft/yii2-composer": true
+        }
     },
     "extra": {
         "handle": "garrison",
         "name": "Garrison",
         "developer": "justinholtweb",
         "developerUrl": "https://justinholt.com",
-        "developerEmail": "justin@justinholtweb.com",
-        "documentationUrl": "https://github.com/justinholtweb/craft-garrison",
+        "developerEmail": "justin@justinholt.com",
+        "documentationUrl": "https://craft-garrison.com/docs",
         "changelogUrl": "https://raw.githubusercontent.com/justinholtweb/craft-garrison/main/CHANGELOG.md",
         "description": "Comprehensive security suite for Craft CMS — scanning, active protection, audit logging, and notifications.",
         "class": "justinholtweb\\garrison\\Plugin"
