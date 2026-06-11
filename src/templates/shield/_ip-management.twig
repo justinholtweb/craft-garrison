@@ -4,7 +4,89 @@
 {% set selectedSubnavItem = 'shield' %}
 
 {% block pluginContent %}
-    <p>{{ 'Manage IP allow/block rules with CIDR support. Implemented in Phase 3.'|t('garrison') }}</p>
+    <p class="light">{{ 'Allow or block individual IP addresses, CIDR ranges (e.g. 203.0.113.0/24), or wildcard patterns (e.g. 203.0.113.*). If any allow rules exist for a scope, only matching IPs may reach it.'|t('garrison') }}</p>
+
+    <h2>{{ 'Add Rule'|t('garrison') }}</h2>
+    <form method="post" accept-charset="UTF-8" class="garrison-card" style="padding:16px;margin-bottom:24px">
+        {{ csrfInput() }}
+        <input type="hidden" name="action" value="garrison/shield/save-rule">
+        {{ redirectInput('garrison/shield/ip-management') }}
+
+        {{ forms.textField({
+            label: 'IP Pattern'|t('garrison'),
+            name: 'ipPattern',
+            placeholder: '203.0.113.4',
+            required: true,
+        }) }}
+
+        {{ forms.selectField({
+            label: 'Action'|t('garrison'),
+            name: 'type',
+            options: [
+                { label: 'Block'|t('garrison'), value: 'block' },
+                { label: 'Allow'|t('garrison'), value: 'allow' },
+            ],
+        }) }}
+
+        {{ forms.selectField({
+            label: 'Scope'|t('garrison'),
+            name: 'scope',
+            options: [
+                { label: 'Everywhere'|t('garrison'), value: 'all' },
+                { label: 'Control panel'|t('garrison'), value: 'cp' },
+                { label: 'Front end'|t('garrison'), value: 'frontend' },
+            ],
+        }) }}
+
+        {{ forms.textField({
+            label: 'Label'|t('garrison'),
+            instructions: 'Optional note to remember why this rule exists.'|t('garrison'),
+            name: 'label',
+        }) }}
+
+        <button type="submit" class="btn submit">{{ 'Add Rule'|t('garrison') }}</button>
+    </form>
+
+    <h2>{{ 'Active Rules'|t('garrison') }}</h2>
+    {% if rules is empty %}
+        <p class="light">{{ 'No IP rules defined.'|t('garrison') }}</p>
+    {% else %}
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th>{{ 'Action'|t('garrison') }}</th>
+                    <th>{{ 'Pattern'|t('garrison') }}</th>
+                    <th>{{ 'Scope'|t('garrison') }}</th>
+                    <th>{{ 'Label'|t('garrison') }}</th>
+                    <th>{{ 'Enabled'|t('garrison') }}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rule in rules %}
+                    <tr>
+                        <td>
+                            <span class="status {{ rule.type == 'block' ? 'red' : 'green' }}"></span>
+                            {{ rule.type|capitalize }}
+                        </td>
+                        <td><code>{{ rule.ipPattern }}</code></td>
+                        <td>{{ rule.scope }}</td>
+                        <td class="light">{{ rule.label }}</td>
+                        <td>{{ rule.enabled ? 'Yes'|t('garrison') : 'No'|t('garrison') }}</td>
+                        <td class="thin">
+                            <form method="post" accept-charset="UTF-8" onsubmit="return confirm('{{ 'Delete this rule?'|t('garrison') }}')">
+                                {{ csrfInput() }}
+                                <input type="hidden" name="action" value="garrison/shield/delete-rule">
+                                <input type="hidden" name="id" value="{{ rule.id }}">
+                                {{ redirectInput('garrison/shield/ip-management') }}
+                                <button type="submit" class="btn small delete">{{ 'Delete'|t('garrison') }}</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 {% endblock %}
 
 {% block actionButton %}

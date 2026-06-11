@@ -2,11 +2,37 @@
 
 {% set title = 'Rate Limiting'|t('garrison') %}
 {% set selectedSubnavItem = 'shield' %}
+{% set fullPageForm = true %}
 
 {% block pluginContent %}
-    <p>{{ 'Configure request rate limiting. Implemented in Phase 3.'|t('garrison') }}</p>
-{% endblock %}
+    <input type="hidden" name="action" value="garrison/settings/save">
+    {{ redirectInput('garrison/shield/rate-limits') }}
 
-{% block actionButton %}
-    <a href="{{ url('garrison/shield') }}" class="btn">{{ 'Back to Shield'|t('garrison') }}</a>
+    <div id="fields">
+        <p class="light">{{ 'Rate limiting throttles front-end requests from a single IP address. Control panel traffic is never rate limited.'|t('garrison') }}</p>
+
+        {{ forms.lightswitchField({
+            label: 'Enable Rate Limiting'|t('garrison'),
+            name: 'settings[enableRateLimiting]',
+            on: settings.enableRateLimiting,
+        }) }}
+
+        {{ forms.textField({
+            label: 'Request Limit'|t('garrison'),
+            instructions: 'Maximum requests allowed per window.'|t('garrison'),
+            name: 'settings[rateLimit]',
+            value: settings.rateLimit,
+            type: 'number',
+            min: 1,
+        }) }}
+
+        {{ forms.textField({
+            label: 'Window'|t('garrison'),
+            instructions: 'Length of the rate-limit window (seconds).'|t('garrison'),
+            name: 'settings[rateLimitWindow]',
+            value: settings.rateLimitWindow,
+            type: 'number',
+            min: 1,
+        }) }}
+    </div>
 {% endblock %}

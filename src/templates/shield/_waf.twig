@@ -2,11 +2,58 @@
 
 {% set title = 'Web Application Firewall'|t('garrison') %}
 {% set selectedSubnavItem = 'shield' %}
+{% set fullPageForm = true %}
 
 {% block pluginContent %}
-    <p>{{ 'WAF request filtering rules. Implemented in Phase 5.'|t('garrison') }}</p>
-{% endblock %}
+    <input type="hidden" name="action" value="garrison/settings/save">
+    {{ redirectInput('garrison/shield/waf') }}
 
-{% block actionButton %}
-    <a href="{{ url('garrison/shield') }}" class="btn">{{ 'Back to Shield'|t('garrison') }}</a>
+    <div id="fields">
+        <p class="light">{{ 'The WAF inspects front-end request parameters and bodies for common attack signatures. Geo-blocking relies on an upstream country header (CF-IPCountry by default).'|t('garrison') }}</p>
+
+        {{ forms.lightswitchField({
+            label: 'Enable WAF'|t('garrison'),
+            name: 'settings[enableWaf]',
+            on: settings.enableWaf,
+        }) }}
+
+        {{ forms.checkboxGroupField({
+            label: 'WAF Rules'|t('garrison'),
+            name: 'settings[wafRules]',
+            values: settings.wafRules,
+            options: [
+                { label: 'SQL injection', value: 'sql-injection' },
+                { label: 'Cross-site scripting (XSS)', value: 'xss' },
+                { label: 'Path traversal', value: 'path-traversal' },
+                { label: 'Malicious user agents', value: 'user-agent' },
+            ],
+        }) }}
+
+        <hr>
+
+        <h2>{{ 'Geo-blocking'|t('garrison') }}</h2>
+
+        {{ forms.lightswitchField({
+            label: 'Enable Geo-blocking'|t('garrison'),
+            name: 'settings[enableGeoBlocking]',
+            on: settings.enableGeoBlocking,
+        }) }}
+
+        {{ forms.selectField({
+            label: 'Mode'|t('garrison'),
+            name: 'settings[geoBlockMode]',
+            value: settings.geoBlockMode,
+            options: [
+                { label: 'Block listed countries'|t('garrison'), value: 'block' },
+                { label: 'Allow only listed countries'|t('garrison'), value: 'allow' },
+            ],
+        }) }}
+
+        {{ forms.textField({
+            label: 'Country Codes'|t('garrison'),
+            instructions: 'Comma-separated ISO 3166-1 alpha-2 codes (e.g. RU, CN, KP).'|t('garrison'),
+            name: 'settings[blockedCountries]',
+            value: settings.blockedCountries|join(', '),
+        }) }}
+    </div>
 {% endblock %}

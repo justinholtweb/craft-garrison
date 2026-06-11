@@ -54,8 +54,10 @@ class CmsConfigCheck extends BaseScannerCheck
             $issues[] = 'Elevated session duration is longer than 1 hour';
         }
 
-        // Check for permissive CORS
-        if (!empty($config->allowedGraphqlOrigins) && $config->allowedGraphqlOrigins === '*') {
+        // Check for permissive CORS. allowedGraphqlOrigins is an array of
+        // origins (or false/null); a '*' entry allows every domain.
+        $gqlOrigins = $config->allowedGraphqlOrigins;
+        if (is_array($gqlOrigins) && in_array('*', $gqlOrigins, true)) {
             $issues[] = 'GraphQL origins allow all domains';
         }
 

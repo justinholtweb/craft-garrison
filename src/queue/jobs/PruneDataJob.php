@@ -2,7 +2,6 @@
 
 namespace justinholtweb\garrison\queue\jobs;
 
-use Craft;
 use craft\queue\BaseJob;
 use justinholtweb\garrison\Plugin;
 use justinholtweb\garrison\records\BlockedRequestRecord;
@@ -27,6 +26,9 @@ class PruneDataJob extends BaseJob
             ->format('Y-m-d H:i:s');
 
         LoginAttemptRecord::deleteAll(['<', 'dateCreated', $cutoff]);
+
+        // Prune audit log entries past the retention window
+        Plugin::getInstance()->sentinel->pruneOldLogs();
     }
 
     protected function defaultDescription(): ?string

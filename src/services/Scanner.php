@@ -5,6 +5,7 @@ namespace justinholtweb\garrison\services;
 use Craft;
 use craft\base\Component;
 use justinholtweb\garrison\enums\ScanStatus;
+use justinholtweb\garrison\events\ScanEvent;
 use justinholtweb\garrison\models\Edition;
 use justinholtweb\garrison\models\ScanReport;
 use justinholtweb\garrison\models\ScanResult;
@@ -13,13 +14,24 @@ use justinholtweb\garrison\records\ScanRecord;
 use justinholtweb\garrison\records\ScanResultRecord;
 use justinholtweb\garrison\scanners\BaseScannerCheck;
 use justinholtweb\garrison\scanners\CmsConfigCheck;
+use justinholtweb\garrison\scanners\CraftUpdatesCheck;
 use justinholtweb\garrison\scanners\CsrfCheck;
+use justinholtweb\garrison\scanners\DefaultAdminCheck;
 use justinholtweb\garrison\scanners\FilePermissionsCheck;
+use justinholtweb\garrison\scanners\GqlIntrospectionCheck;
 use justinholtweb\garrison\scanners\HttpsCheck;
 use justinholtweb\garrison\scanners\PhpVersionCheck;
+use justinholtweb\garrison\scanners\PoweredByHeaderCheck;
+use justinholtweb\garrison\scanners\SecureCookiesCheck;
+use justinholtweb\garrison\scanners\SecurityKeyCheck;
+use justinholtweb\garrison\scanners\SessionDurationCheck;
+use justinholtweb\garrison\scanners\SvgSanitizationCheck;
+use justinholtweb\garrison\scanners\WebrootExposureCheck;
 
 class Scanner extends Component
 {
+    public const EVENT_AFTER_SCAN = 'afterScan';
+
     /** @var BaseScannerCheck[] */
     private array $checks = [];
 
@@ -75,6 +87,15 @@ class Scanner extends Component
         // Enforce scan history limit
         $this->pruneOldScans($siteId);
 
+        // Notify if the scan surfaced problems
+        Plugin::getInstance()->beacon->notifyScanResult($report);
+
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SCAN)) {
+            $event = new ScanEvent();
+            $event->report = $report;
+            $this->trigger(self::EVENT_AFTER_SCAN, $event);
+        }
+
         return $report;
     }
 
@@ -84,6 +105,7 @@ class Scanner extends Component
             $siteId = Craft::$app->getSites()->getPrimarySite()->id;
         }
 
+        /** @var ScanRecord|null $record */
         $record = ScanRecord::find()
             ->where(['siteId' => $siteId])
             ->orderBy(['dateCreated' => SORT_DESC])
@@ -98,6 +120,7 @@ class Scanner extends Component
 
     public function getScanById(int $id): ?ScanReport
     {
+        /** @var ScanRecord|null $record */
         $record = ScanRecord::findOne($id);
 
         if (!$record) {
@@ -113,6 +136,7 @@ class Scanner extends Component
             $siteId = Craft::$app->getSites()->getPrimarySite()->id;
         }
 
+        /** @var ScanRecord[] $records */
         $records = ScanRecord::find()
             ->where(['siteId' => $siteId])
             ->orderBy(['dateCreated' => SORT_DESC])
@@ -120,7 +144,7 @@ class Scanner extends Component
             ->offset($offset)
             ->all();
 
-        return array_map(fn($record) => $this->buildReportFromRecord($record, false), $records);
+        return array_map(fn(ScanRecord $record) => $this->buildReportFromRecord($record, false), $records);
     }
 
     private function registerDefaultChecks(): void
@@ -130,6 +154,15 @@ class Scanner extends Component
         $this->registerCheck(new CsrfCheck());
         $this->registerCheck(new FilePermissionsCheck());
         $this->registerCheck(new PhpVersionCheck());
+        $this->registerCheck(new SecurityKeyCheck());
+        $this->registerCheck(new SecureCookiesCheck());
+        $this->registerCheck(new SvgSanitizationCheck());
+        $this->registerCheck(new WebrootExposureCheck());
+        $this->registerCheck(new CraftUpdatesCheck());
+        $this->registerCheck(new GqlIntrospectionCheck());
+        $this->registerCheck(new PoweredByHeaderCheck());
+        $this->registerCheck(new SessionDurationCheck());
+        $this->registerCheck(new DefaultAdminCheck());
     }
 
     private function saveScanReport(ScanReport $report): void
@@ -183,6 +216,7 @@ class Scanner extends Component
         $report->dateCreated = $record->dateCreated ? new \DateTime($record->dateCreated) : null;
 
         if ($withResults) {
+            /** @var ScanResultRecord[] $resultRecords */
             $resultRecords = ScanResultRecord::find()
                 ->where(['scanId' => $record->id])
                 ->all();

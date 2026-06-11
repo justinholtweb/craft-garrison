@@ -62,7 +62,7 @@ class SettingsController extends Controller
         $request = Craft::$app->getRequest();
 
         $settingsData = $request->getBodyParam('settings', []);
-        $settings->setAttributes($settingsData, false);
+        $settingsData = $this->normalizeListFields($settingsData);
 
         if (!Craft::$app->getPlugins()->savePluginSettings($plugin, $settingsData)) {
             Craft::$app->getSession()->setError(Craft::t('garrison', 'Couldn\'t save settings.'));
@@ -72,5 +72,21 @@ class SettingsController extends Controller
         Craft::$app->getSession()->setNotice(Craft::t('garrison', 'Settings saved.'));
 
         return $this->redirectToPostedUrl();
+    }
+
+    /**
+     * Convert comma/newline-separated string inputs into the arrays their
+     * settings expect (country codes, email recipients).
+     */
+    private function normalizeListFields(array $data): array
+    {
+        foreach (['blockedCountries', 'emailRecipients'] as $field) {
+            if (isset($data[$field]) && is_string($data[$field])) {
+                $items = preg_split('/[\s,]+/', trim($data[$field]), -1, PREG_SPLIT_NO_EMPTY);
+                $data[$field] = array_values($items ?: []);
+            }
+        }
+
+        return $data;
     }
 }

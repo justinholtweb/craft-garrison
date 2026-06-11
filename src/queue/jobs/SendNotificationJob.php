@@ -3,6 +3,7 @@
 namespace justinholtweb\garrison\queue\jobs;
 
 use craft\queue\BaseJob;
+use justinholtweb\garrison\Plugin;
 
 class SendNotificationJob extends BaseJob
 {
@@ -13,7 +14,7 @@ class SendNotificationJob extends BaseJob
 
     public function execute($queue): void
     {
-        // Implemented in Phase 4
+        Plugin::getInstance()->beacon->dispatch($this->subject, $this->body, $this->data);
     }
 
     protected function defaultDescription(): ?string
