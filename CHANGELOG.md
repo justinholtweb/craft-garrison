@@ -1,6 +1,11 @@
 # Changelog
 
-## 5.0.0 - Unreleased
+## 5.0.1 - 2026-06-17
+
+### Fixed
+- Install migration failed on utf8mb4 databases with "Specified key was too long; max key length is 3072 bytes" when creating the UNIQUE index on `garrison_file_baselines.filePath`. The column is now `VARCHAR(768)` (the maximum width for a single-column index on utf8mb4), down from `VARCHAR(1024)`. Paths are stored relative to the web root, so this does not affect functionality.
+
+## 5.0.0 - 2026-06-11
 
 ### Added
 

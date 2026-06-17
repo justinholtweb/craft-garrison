@@ -86,7 +86,10 @@ class Install extends Migration
         // File Baselines
         $this->createTable('{{%garrison_file_baselines}}', [
             'id' => $this->primaryKey(),
-            'filePath' => $this->string(1024)->notNull(),
+            // 768 chars is the max for a single-column UNIQUE index on utf8mb4
+            // (768 * 4 = 3072 bytes, MySQL's InnoDB key-length limit). Paths are
+            // stored relative to the web root, so this is plenty of headroom.
+            'filePath' => $this->string(768)->notNull(),
             'fileHash' => $this->string(64)->notNull(),
             'fileSize' => $this->bigInteger()->notNull(),
             'filePermissions' => $this->string(10)->notNull(),
