@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.0.2 - 2026-06-17
+
+### Fixed
+- Settings and Shield pages threw a Twig runtime error (`Variable "forms" does not exist`). The templates that use Craft's `forms` macros now import them with `{% import '_includes/forms' as forms %}`.
+
 ## 5.0.1 - 2026-06-17
 
 ### Fixed

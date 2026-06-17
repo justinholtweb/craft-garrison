@@ -4,7 +4,7 @@
     "type": "craft-plugin",
     "license": "proprietary",
     "minimum-stability": "dev",
-    "version": "5.0.1",
+    "version": "5.0.2",
     "prefer-stable": true,
     "require": {
         "php": "^8.2",
