@@ -64,8 +64,8 @@ class Shield extends Component
             $this->enforceGeoRules($ip, $settings);
         }
 
-        // 3. Rate limiting (Plus+).
-        if ($settings->enableRateLimiting && Edition::isPlus()) {
+        // 3. Rate limiting (Pro).
+        if ($settings->enableRateLimiting && Edition::isPro()) {
             $this->enforceRateLimit($ip, $settings);
         }
 

@@ -27,7 +27,7 @@ class SentinelController extends Controller
 
         return $this->renderTemplate('garrison/sentinel/_index', [
             'recentLog' => $plugin->sentinel->getAuditLog([], 10),
-            'baselineCount' => Edition::isPlus() ? $plugin->beacon->getBaselineCount() : 0,
+            'baselineCount' => Edition::isPro() ? $plugin->beacon->getBaselineCount() : 0,
             'selectedSubnavItem' => 'sentinel',
         ]);
     }
@@ -60,7 +60,7 @@ class SentinelController extends Controller
 
     public function actionFileIntegrity(): Response
     {
-        Edition::requiresPlus('File integrity monitoring');
+        Edition::requiresPro('File integrity monitoring');
 
         $beacon = Plugin::getInstance()->beacon;
 
@@ -76,7 +76,7 @@ class SentinelController extends Controller
     {
         $this->requirePostRequest();
         $this->requirePermission('garrison:manageShield');
-        Edition::requiresPlus('File integrity monitoring');
+        Edition::requiresPro('File integrity monitoring');
 
         $count = Plugin::getInstance()->beacon->createBaseline();
 
@@ -91,7 +91,7 @@ class SentinelController extends Controller
     {
         $this->requirePostRequest();
         $this->requirePermission('garrison:manageShield');
-        Edition::requiresPlus('File integrity monitoring');
+        Edition::requiresPro('File integrity monitoring');
 
         $changes = Plugin::getInstance()->beacon->checkIntegrity();
         $total = count($changes['modified']) + count($changes['deleted']) + count($changes['added']);

@@ -33,7 +33,7 @@ class ShieldController extends Controller
 
     public function actionIpManagement(): Response
     {
-        Edition::requiresPlus('IP management');
+        Edition::requiresPro('IP management');
 
         return $this->renderTemplate('garrison/shield/_ip-management', [
             'rules' => Plugin::getInstance()->shield->getAccessRules(),
@@ -45,7 +45,7 @@ class ShieldController extends Controller
     {
         $this->requirePostRequest();
         $this->requirePermission('garrison:manageShield');
-        Edition::requiresPlus('IP management');
+        Edition::requiresPro('IP management');
 
         $request = Craft::$app->getRequest();
 
@@ -72,7 +72,7 @@ class ShieldController extends Controller
     {
         $this->requirePostRequest();
         $this->requirePermission('garrison:manageShield');
-        Edition::requiresPlus('IP management');
+        Edition::requiresPro('IP management');
 
         $id = (int) Craft::$app->getRequest()->getRequiredBodyParam('id');
         Plugin::getInstance()->shield->deleteAccessRule($id);
@@ -84,7 +84,7 @@ class ShieldController extends Controller
 
     public function actionRateLimits(): Response
     {
-        Edition::requiresPlus('Rate limiting');
+        Edition::requiresPro('Rate limiting');
 
         return $this->renderTemplate('garrison/shield/_rate-limits', [
             'settings' => Plugin::getInstance()->getSettings(),

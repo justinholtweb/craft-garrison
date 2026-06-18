@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.1.0 - 2026-06-18
+
+### Changed
+- Consolidated editions from three (Free/Plus/Pro) to two: **Free** and **Pro**. All features that previously required Plus — scheduled scans, notifications, IP allow/block rules, rate limiting, file integrity monitoring, and the REST API — are now part of **Pro**. The free edition keeps its `lite` handle internally but is presented as "Free" throughout the UI.
+- Audit-log retention is now 30 days on Free and 365 days on Pro (the 90-day Plus tier is gone).
+
 ## 5.0.2 - 2026-06-17
 
 ### Fixed
@@ -17,31 +23,31 @@
 #### Scanner (all editions)
 - Security scanner with 14 checks: CMS configuration, HTTPS, CSRF, file permissions, PHP version, application security key, cookie security, upload sanitization, web-root exposure, software updates, GraphQL introspection, X-Powered-By header, session duration, and predictable admin usernames
 - 0–100 risk score with per-check remediation guidance
-- Scan history (last 10 on Lite, unlimited on Plus/Pro) and multi-site scans
+- Scan history (last 10 on Free, unlimited on Pro) and multi-site scans
 - `garrison/scan/run` and `garrison/scan/status` console commands
 
 #### Shield — active protection
 - Login brute-force protection with IP lockout, enforced before the password is checked (all editions)
-- IP allow/block rules with exact, CIDR, and wildcard matching, scoped to CP / frontend / everywhere (Plus+)
-- Rate limiting with a per-IP fixed window (Plus+)
+- IP allow/block rules with exact, CIDR, and wildcard matching, scoped to CP / frontend / everywhere (Pro)
+- Rate limiting with a per-IP fixed window (Pro)
 - WAF request filtering for SQL injection, XSS, path traversal, and malicious user agents (Pro)
 - Geo-blocking via an upstream country header (Pro)
 - `garrison/shield/block`, `allow`, `list`, and `remove` console commands
 
 #### Sentinel — audit & integrity
-- Audit logging of authentication, element, plugin, and user events with edition-based retention (30/90/365 days)
-- File integrity monitoring with SHA-256 baselines and change detection (Plus+)
+- Audit logging of authentication, element, plugin, and user events with edition-based retention (30 days Free / 365 days Pro)
+- File integrity monitoring with SHA-256 baselines and change detection (Pro)
 - `garrison/integrity/baseline` and `garrison/integrity/check` console commands
 
-#### Beacon — notifications (Plus+)
+#### Beacon — notifications (Pro)
 - Queue-based notifications over email, Slack, Discord, and generic webhooks
 - Triggers for scan failures, detected threats, login lockouts, and file integrity changes, de-duplicated per IP
 
 #### Dashboard & API
 - Dashboard with risk score, last-scan summary, and Shield activity; threat analytics on Pro
 - Security Score and Recent Threats control-panel widgets
-- Authenticated REST API for scans, Shield status, and the audit log (Plus+)
-- Queue-based scheduled scans (Plus+)
+- Authenticated REST API for scans, Shield status, and the audit log (Pro)
+- Queue-based scheduled scans (Pro)
 
 ### Notes
 - Requires Craft CMS 5.0+ and PHP 8.2+.

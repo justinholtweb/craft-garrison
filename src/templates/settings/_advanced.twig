@@ -13,7 +13,7 @@
 
     <h3>{{ 'Current Edition'|t('garrison') }}</h3>
     <p>
-        <span class="garrison-edition-badge">{{ craft.app.plugins.getPlugin('garrison').edition|upper }}</span>
+        <span class="garrison-edition-badge">{{ craft.app.plugins.getPlugin('garrison').is('pro') ? 'Pro' : 'Free' }}</span>
     </p>
 {% endblock %}
 

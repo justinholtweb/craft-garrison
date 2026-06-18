@@ -144,7 +144,7 @@ class Beacon extends Component
         return $sent;
     }
 
-    // File integrity (Plus+)
+    // File integrity (Pro)
     // -------------------------------------------------------------------------
 
     /**
@@ -155,7 +155,7 @@ class Beacon extends Component
      */
     public function createBaseline(): int
     {
-        Edition::requiresPlus('File integrity monitoring');
+        Edition::requiresPro('File integrity monitoring');
 
         FileBaselineRecord::deleteAll();
 
@@ -184,7 +184,7 @@ class Beacon extends Component
      */
     public function checkIntegrity(): array
     {
-        Edition::requiresPlus('File integrity monitoring');
+        Edition::requiresPro('File integrity monitoring');
 
         $changes = ['modified' => [], 'deleted' => [], 'added' => []];
         /** @var FileBaselineRecord[] $baselines */

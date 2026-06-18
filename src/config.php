@@ -13,17 +13,17 @@ return [
     'scanSchedule' => 'daily', // 'hourly', 'daily', 'weekly', 'monthly', or null to disable
     'scanScheduleHour' => 3, // Hour of day (0-23) for daily/weekly/monthly scans
 
-    // Shield — Login Protection (Lite+)
+    // Shield — Login Protection (Free+)
     'maxLoginAttempts' => 5,
     'lockoutDuration' => 300, // seconds
     'loginAttemptWindow' => 600, // seconds
 
-    // Shield — Rate Limiting (Plus+)
+    // Shield — Rate Limiting (Pro)
     'enableRateLimiting' => false,
     'rateLimit' => 60, // requests per window
     'rateLimitWindow' => 60, // seconds
 
-    // Shield — IP Management (Plus+)
+    // Shield — IP Management (Pro)
     'enableIpRestriction' => false,
 
     // Shield — WAF (Pro)
@@ -35,11 +35,11 @@ return [
     'blockedCountries' => [],
     'geoBlockMode' => 'block', // 'block' or 'allow' (allowlist mode)
 
-    // Sentinel — Audit Logging (Lite+)
+    // Sentinel — Audit Logging (Free+)
     'enableAuditLog' => true,
-    'auditLogRetentionDays' => null, // null = use edition default (30/90/365)
+    'auditLogRetentionDays' => null, // null = use edition default (30 Free / 365 Pro)
 
-    // Sentinel — File Integrity (Plus+)
+    // Sentinel — File Integrity (Pro)
     'enableFileIntegrity' => false,
     'monitoredPaths' => [
         'vendor/craftcms/cms/src/',
@@ -48,7 +48,7 @@ return [
         'web/index.php',
     ],
 
-    // Beacon — Notifications (Plus+)
+    // Beacon — Notifications (Pro)
     'enableNotifications' => false,
     'notifyOnScanFailure' => true,
     'notifyOnThreatDetected' => true,

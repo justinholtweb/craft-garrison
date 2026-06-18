@@ -69,7 +69,6 @@ class Plugin extends BasePlugin
     {
         return [
             Edition::LITE,
-            Edition::PLUS,
             Edition::PRO,
         ];
     }
@@ -171,7 +170,7 @@ class Plugin extends BasePlugin
                 $event->rules['garrison/settings/scanner'] = 'garrison/settings/scanner';
                 $event->rules['garrison/settings/advanced'] = 'garrison/settings/advanced';
 
-                // REST API (Plus+)
+                // REST API (Pro)
                 $event->rules['garrison/api/v1/scan/last'] = 'garrison/api/scan-last';
                 $event->rules['garrison/api/v1/scan/run'] = 'garrison/api/scan-run';
                 $event->rules['garrison/api/v1/scan/<id:\d+>'] = 'garrison/api/scan';
@@ -285,7 +284,7 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Queue scheduled scans (Plus+). Evaluated at most once a minute on web
+     * Queue scheduled scans (Pro). Evaluated at most once a minute on web
      * requests; enqueues a scan once the configured interval has elapsed since
      * the last one.
      */
@@ -303,7 +302,7 @@ class Plugin extends BasePlugin
     private function maybeQueueScheduledScan(): void
     {
         $settings = $this->getSettings();
-        if (empty($settings->scanSchedule) || !Edition::isPlus()) {
+        if (empty($settings->scanSchedule) || !Edition::isPro()) {
             return;
         }
 

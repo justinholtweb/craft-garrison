@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Garrison is a comprehensive security plugin for Craft CMS 5 competing with Sherlock by PutYourLightsOn. Three editions: Lite (free), Plus ($149), Pro ($249). Four core modules — Scanner, Shield, Sentinel, Beacon — plus a Dashboard service.
+Garrison is a comprehensive security plugin for Craft CMS 5 competing with Sherlock by PutYourLightsOn. Two editions: Free (internal handle `lite`) and Pro. Four core modules — Scanner, Shield, Sentinel, Beacon — plus a Dashboard service.
 
 **Namespace:** `justinholtweb\garrison`
 **Craft CMS:** ^5.0.0 | **PHP:** ^8.2
@@ -29,7 +29,7 @@ Garrison is a comprehensive security plugin for Craft CMS 5 competing with Sherl
 - `NotificationChannel` (email/slack/discord/webhook)
 
 **6 models**
-- `Edition` — LITE/PLUS/PRO constants, is(), isAtLeast(), isPlus(), isPro(), requiresPlus(), requiresPro(). Also maxScanHistory() and auditLogRetentionDays() for edition-gated limits.
+- `Edition` — LITE/PRO constants (LITE presented as "Free"), is(), isAtLeast(), isPro(), requiresPro(), name(). Also maxScanHistory() and auditLogRetentionDays() for edition-gated limits.
 - `Settings` — all plugin settings with Yii2 validation rules. Covers scanner, shield, sentinel, beacon, and pruning config.
 - `ScanResult` — single check result with status, severity, message, details, remediation.
 - `ScanReport` — complete scan with addResult(), calculateStatus(), calculateRiskScore(), riskLabel(), riskColor(). Risk algorithm: Critical +25, High +15, Medium +8, Low +3, Warning +1, capped at 100.
@@ -64,7 +64,7 @@ Garrison is a comprehensive security plugin for Craft CMS 5 competing with Sherl
 - `ShieldController` — index, ip-management, rate-limits, login-protection, waf
 - `SentinelController` — index, audit-log, file-integrity
 - `SettingsController` — index, notifications, scanner, advanced, save (POST)
-- `ApiController` — stub with edition gate (Plus+)
+- `ApiController` — stub with edition gate (Pro)
 
 **Console commands**
 - `garrison/scan/run` — runs scan with colored terminal output (green ✓, yellow ⚠, red ✗), returns non-zero exit on critical findings
@@ -157,9 +157,9 @@ garrison/settings/advanced            → settings/advanced
 - `ScanEvent` and `AuditEvent` firing
 
 ### Phase 3: Shield — Active Protection
-- `LoginProtection.php` — brute-force detection + lockout (Lite+)
-- `IpManager.php` — allow/block rules with CIDR matching (Plus+)
-- `RateLimiter.php` — cache-based atomic request counting (Plus+)
+- `LoginProtection.php` — brute-force detection + lockout (Free+)
+- `IpManager.php` — allow/block rules with CIDR matching (Pro)
+- `RateLimiter.php` — cache-based atomic request counting (Pro)
 - Shield service `handleRequest()` — wired to `Application::EVENT_BEFORE_REQUEST`
 - `ShieldController` console commands — block-ip, unblock-ip, list
 - Shield CP pages — login protection settings, IP management CRUD, rate limit config

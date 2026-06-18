@@ -9,7 +9,7 @@ use justinholtweb\garrison\Plugin;
 use yii\web\Response;
 
 /**
- * Read-mostly JSON API for Garrison (Plus+).
+ * Read-mostly JSON API for Garrison (Pro).
  *
  * Authentication uses Craft's standard session/permission system — callers must
  * be authenticated control-panel users with the relevant Garrison permissions.
@@ -27,7 +27,7 @@ class ApiController extends Controller
             return false;
         }
 
-        Edition::requiresPlus('REST API');
+        Edition::requiresPro('REST API');
         $this->requirePermission('garrison:accessPlugin');
 
         return true;

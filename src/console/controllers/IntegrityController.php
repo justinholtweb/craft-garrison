@@ -18,8 +18,8 @@ class IntegrityController extends Controller
      */
     public function actionBaseline(): int
     {
-        if (!Edition::isPlus()) {
-            $this->stderr("File integrity monitoring requires Garrison Plus or Pro.\n", Console::FG_RED);
+        if (!Edition::isPro()) {
+            $this->stderr("File integrity monitoring requires Garrison Pro.\n", Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
@@ -34,8 +34,8 @@ class IntegrityController extends Controller
      */
     public function actionCheck(): int
     {
-        if (!Edition::isPlus()) {
-            $this->stderr("File integrity monitoring requires Garrison Plus or Pro.\n", Console::FG_RED);
+        if (!Edition::isPro()) {
+            $this->stderr("File integrity monitoring requires Garrison Pro.\n", Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }
 

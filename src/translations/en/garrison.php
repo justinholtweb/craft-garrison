@@ -78,7 +78,7 @@ return [
     'Enable Audit Log' => 'Enable Audit Log',
     'Track user and system actions.' => 'Track user and system actions.',
     'Scan Schedule' => 'Scan Schedule',
-    'How often to automatically run security scans. Requires Plus edition.' => 'How often to automatically run security scans. Requires Plus edition.',
+    'How often to automatically run security scans. Requires Pro edition.' => 'How often to automatically run security scans. Requires Pro edition.',
     'Scan Schedule Hour' => 'Scan Schedule Hour',
     'Hour of day (0-23) for daily/weekly/monthly scans.' => 'Hour of day (0-23) for daily/weekly/monthly scans.',
     'Prune Blocked Requests' => 'Prune Blocked Requests',
@@ -91,7 +91,7 @@ return [
     // Notifications
     'Notification Settings' => 'Notification Settings',
     'Enable Notifications' => 'Enable Notifications',
-    'Send notifications when security events occur. Requires Plus edition.' => 'Send notifications when security events occur. Requires Plus edition.',
+    'Send notifications when security events occur. Requires Pro edition.' => 'Send notifications when security events occur. Requires Pro edition.',
     'Notify on Scan Failure' => 'Notify on Scan Failure',
     'Notify on Threat Detected' => 'Notify on Threat Detected',
     'Notify on Login Lockout' => 'Notify on Login Lockout',

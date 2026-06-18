@@ -4,24 +4,24 @@ Comprehensive security plugin for Craft CMS 5. Vulnerability scanning, active re
 
 ## Editions
 
-| Feature | Lite (Free) | Plus | Pro |
-|---------|:-----------:|:----:|:---:|
-| Security scanner (14 checks) | ✓ | ✓ | ✓ |
-| Remediation guidance per check | ✓ | ✓ | ✓ |
-| Login brute-force protection & lockout | ✓ | ✓ | ✓ |
-| Audit logging | 30 days | 90 days | 365 days |
-| Console commands | ✓ | ✓ | ✓ |
-| Scan history | Last 10 | Unlimited | Unlimited |
-| Multi-site scans | ✓ | ✓ | ✓ |
-| Scheduled scans (queue-based) | — | ✓ | ✓ |
-| Email / Slack / Discord / webhook alerts | — | ✓ | ✓ |
-| IP allow/block rules (CP + frontend, CIDR) | — | ✓ | ✓ |
-| Rate limiting | — | ✓ | ✓ |
-| File integrity monitoring | — | ✓ | ✓ |
-| REST API (authenticated) | — | ✓ | ✓ |
-| WAF / request filtering | — | — | ✓ |
-| Geo-blocking | — | — | ✓ |
-| Dashboard threat analytics | — | — | ✓ |
+| Feature | Free | Pro |
+|---------|:----:|:---:|
+| Security scanner (14 checks) | ✓ | ✓ |
+| Remediation guidance per check | ✓ | ✓ |
+| Login brute-force protection & lockout | ✓ | ✓ |
+| Audit logging | 30 days | 365 days |
+| Console commands | ✓ | ✓ |
+| Scan history | Last 10 | Unlimited |
+| Multi-site scans | ✓ | ✓ |
+| Scheduled scans (queue-based) | — | ✓ |
+| Email / Slack / Discord / webhook alerts | — | ✓ |
+| IP allow/block rules (CP + frontend, CIDR) | — | ✓ |
+| Rate limiting | — | ✓ |
+| File integrity monitoring | — | ✓ |
+| REST API (authenticated) | — | ✓ |
+| WAF / request filtering | — | ✓ |
+| Geo-blocking | — | ✓ |
+| Dashboard threat analytics | — | ✓ |
 
 ## Requirements
 
@@ -99,7 +99,7 @@ Active request-level protection, evaluated on `Application::EVENT_BEFORE_REQUEST
 1. **IP allow/block rules** — exact, CIDR, or wildcard patterns, scoped to CP / frontend / everywhere → 403
 2. **Login lockout** — failed-attempt threshold enforced before the password is checked → 403 / 429
 3. **Geo-blocking** (Pro) — block or allowlist by country, resolved from an upstream country header (Cloudflare `CF-IPCountry` by default) → 403
-4. **Rate limiting** (Plus+) — fixed-window per-IP counter backed by Craft's cache → 429
+4. **Rate limiting** (Pro) — fixed-window per-IP counter backed by Craft's cache → 429
 5. **WAF rules** (Pro) — regex signatures for SQL injection, XSS, path traversal, and malicious user agents → 403
 
 Every block is recorded in the database and fires a `ThreatDetectedEvent`.
@@ -109,13 +109,13 @@ Every block is recorded in the database and fires a `ThreatDetectedEvent`.
 Monitoring and audit trail:
 
 - **Audit log** — records logins, failed logins, logouts, element creation/deletion, plugin install/uninstall/enable/disable, and user suspend/activate events, with the acting user, IP, and user agent
-- **File integrity** (Plus+) — SHA-256 baselines stored in the database; detects modified, deleted, and added files across the monitored paths
+- **File integrity** (Pro) — SHA-256 baselines stored in the database; detects modified, deleted, and added files across the monitored paths
 
 Default monitored paths: `vendor/craftcms/cms/src/`, `config/`, `.env`, `web/index.php`.
 
 ### Beacon
 
-Multi-channel notifications (Plus+), delivered via a queue job so a slow webhook never blocks a request:
+Multi-channel notifications (Pro), delivered via a queue job so a slow webhook never blocks a request:
 
 - **Email** — via Craft's built-in mailer
 - **Slack** — incoming webhook URL
@@ -134,18 +134,18 @@ php craft garrison/scan/run --siteId=1
 # Show the last scan status
 php craft garrison/scan/status
 
-# IP management (Plus+)
+# IP management (Pro)
 php craft garrison/shield/block 203.0.113.4 --label="abuse"
 php craft garrison/shield/allow 10.0.0.0/8 --scope=cp
 php craft garrison/shield/list
 php craft garrison/shield/remove 3
 
-# File integrity (Plus+)
+# File integrity (Pro)
 php craft garrison/integrity/baseline
 php craft garrison/integrity/check
 ```
 
-## REST API (Plus+)
+## REST API (Pro)
 
 The API is authenticated through Craft's session and permission system — callers must be signed-in control-panel users with the relevant Garrison permissions. All endpoints return JSON and live under the control-panel trigger (e.g. `/admin`).
 
@@ -157,7 +157,7 @@ GET  garrison/api/v1/shield/status   Blocked-request count and rule count
 GET  garrison/api/v1/sentinel/log    Recent audit-log entries (requires "View audit log")
 ```
 
-## Scheduled Scans (Plus+)
+## Scheduled Scans (Pro)
 
 Set `scanSchedule` to `hourly`, `daily`, `weekly`, or `monthly`. Garrison enqueues a `RunScanJob` once the interval has elapsed since the last scan; the check is throttled to run at most once a minute and only on web requests. For deterministic timing you can instead drive `php craft garrison/scan/run` from system cron.
 
@@ -193,4 +193,4 @@ composer phpstan   # static analysis (level 5)
 
 ## License
 
-This is a commercial plugin licensed through the [Craft Plugin Store](https://plugins.craftcms.com). The Lite edition is free. See [LICENSE.md](LICENSE.md).
+This is a commercial plugin licensed through the [Craft Plugin Store](https://plugins.craftcms.com). The Free edition is free. See [LICENSE.md](LICENSE.md).

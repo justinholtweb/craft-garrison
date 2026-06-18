@@ -15,8 +15,8 @@
         <a href="{{ url('garrison/sentinel/file-integrity') }}" class="garrison-nav-card garrison-card">
             <h3>{{ 'File Integrity'|t('garrison') }}</h3>
             <p>{{ 'Monitor critical files for unauthorized changes.'|t('garrison') }}</p>
-            {% if not craft.app.plugins.getPlugin('garrison').is('plus') %}
-                <span class="garrison-edition-badge">Plus</span>
+            {% if not craft.app.plugins.getPlugin('garrison').is('pro') %}
+                <span class="garrison-edition-badge">Pro</span>
             {% endif %}
         </a>
     </div>
