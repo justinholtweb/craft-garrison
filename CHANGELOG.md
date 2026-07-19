@@ -1,5 +1,13 @@
 # Changelog
 
+## 5.1.4 - 2026-07-19
+
+### Changed
+- Expanded the unit-test suite from 19 to 42 tests, adding coverage for the `Severity` enum (values, labels, colors, and the risk weights that drive scan scoring), `ScanResult` status predicates, and `RiskScore` banding boundaries. No functional changes to the plugin.
+
+### Notes
+- Versions 5.1.1–5.1.3 were skipped: a `5.1.3` tag had already been published against the 5.1.0 commit, so this release jumps to 5.1.4 to stay ahead of it in version ordering.
+
 ## 5.1.0 - 2026-06-18
 
 ### Changed
