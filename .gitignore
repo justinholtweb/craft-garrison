@@ -10,3 +10,6 @@
 # Codeception
 /tests/_output/
 /tests/_support/_generated/
+
+# DDEV (local test harness, untracked)
+/.ddev/
