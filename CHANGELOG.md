@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.1.5 - 2026-07-22
+
+### Updated
+
+- Masked icon replaced, thanks for noticing Jalen Davenport
+
 ## 5.1.4 - 2026-07-19
 
 ### Changed
