@@ -1,5 +1,10 @@
 # Changelog
 
+## 5.1.6 - 2026-08-19
+
+### Fixed
+- The **Settings → Plugins → Garrison** screen rendered Garrison's full settings page inside Craft's own settings page, nesting a form inside a form and leaving two `action` inputs in the markup — so saving from there could post to the wrong action. That entry now redirects to Garrison's own settings screen at `garrison/settings`.
+
 ## 5.1.5 - 2026-07-22
 
 ### Updated
