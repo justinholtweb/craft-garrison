@@ -3,6 +3,8 @@
 namespace justinholtweb\garrison\controllers;
 
 use Craft;
+use craft\helpers\ProjectConfig as ProjectConfigHelper;
+use craft\services\ProjectConfig;
 use craft\web\Controller;
 use justinholtweb\garrison\Plugin;
 
@@ -14,7 +16,12 @@ class SettingsController extends Controller
             return false;
         }
 
-        $this->requireAdmin(false);
+        // Admins and "Manage Garrison settings" can look (the screens go read-only for anyone who
+        // can't save). Saving writes project config, so actionSave() needs an admin with
+        // allowAdminChanges on.
+        if (!Craft::$app->getUser()->getIsAdmin()) {
+            $this->requirePermission('garrison:manageSettings');
+        }
 
         return true;
     }
@@ -56,13 +63,21 @@ class SettingsController extends Controller
     public function actionSave(): ?\yii\web\Response
     {
         $this->requirePostRequest();
+        $this->requireAdmin();
 
         $plugin = Plugin::getInstance();
-        $settings = $plugin->getSettings();
         $request = Craft::$app->getRequest();
 
-        $settingsData = $request->getBodyParam('settings', []);
-        $settingsData = $this->normalizeListFields($settingsData);
+        $posted = $request->getBodyParam('settings', []);
+        $posted = $this->normalizeListFields(is_array($posted) ? $posted : []);
+
+        // Each screen posts only its own fields, and savePluginSettings() writes only the keys it
+        // is given — so passing the post alone erased every setting saved from another screen,
+        // switching protections off. Merge the post over what is already stored. Not over
+        // getSettings(): that carries config/garrison.php overrides, which belong in that file,
+        // not in project config.
+        $stored = Craft::$app->getProjectConfig()->get(ProjectConfig::PATH_PLUGINS . '.' . $plugin->handle . '.settings') ?? [];
+        $settingsData = array_merge(ProjectConfigHelper::unpackAssociativeArrays($stored), $posted);
 
         if (!Craft::$app->getPlugins()->savePluginSettings($plugin, $settingsData)) {
             Craft::$app->getSession()->setError(Craft::t('garrison', 'Couldn\'t save settings.'));
@@ -83,7 +98,7 @@ class SettingsController extends Controller
         foreach (['blockedCountries', 'emailRecipients'] as $field) {
             if (isset($data[$field]) && is_string($data[$field])) {
                 $items = preg_split('/[\s,]+/', trim($data[$field]), -1, PREG_SPLIT_NO_EMPTY);
-                $data[$field] = array_values($items ?: []);
+                $data[$field] = $items ?: [];
             }
         }
 

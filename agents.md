@@ -216,3 +216,39 @@ src/
 ├── templates/                      (17 twig files across 6 directories)
 └── translations/en/                (1 file — 80+ strings)
 ```
+
+## Testing
+
+```sh
+docker exec -w /var/www/html ddev-plugin-testing-web php /var/www/craft-garrison/tests/integration/security.php   # 17: settings merge, who can save, read-only screens, live WAF, lockout clearing and duration
+docker exec -w /sites/craft-garrison ddev-phpstan-runner-web bash -c 'vendor/bin/phpstan analyse --memory-limit=1G && vendor/bin/ecs check && vendor/bin/codecept run unit'
+```
+
+`security.php` runs over HTTP against the harness and toggles `CRAFT_ALLOW_ADMIN_CHANGES` in the
+harness `.env` for two checks. It restores `.env` and Garrison's stored settings when it finishes —
+the settings in a *fresh* PHP process, because this one's project config is stale after the web
+process saves (so `set()` compares against the old copy and writes nothing), and a script never
+reaches the end of a request, where Craft writes the YAML. The WAF is on only for its own section
+(twenty real sign-ins with fresh CSRF tokens must all pass), and notifications are off before it
+blocks anything. The lockout checks run in-process on TEST-NET addresses and wind the clock back by
+backdating `dateCreated` and the cached lockout end.
+
+## WAF and lockout (5.1.7)
+
+- `Shield::matchWafRules()` checks each query/body value separately (joined, a quote ending one
+  field and `--` starting the next read as an injection), reads parsed body params rather than
+  the raw body, and drops the CSRF param and any key containing `password`. The raw body is only
+  read when Craft parsed no fields. `SQLI_PATTERN` needs SQL context; MySQL allows no space
+  between a built-in function and `(`, so `sleep(` not `sleep (` ("Sleep (8 hours)").
+- A lockout is a cache entry `garrison:lockout:<md5 ip>` holding `until`, kept for
+  `lockoutDuration + loginAttemptWindow` so failures before `until` stop counting after it ends.
+  With no entry, `isLockedOut()` falls back to counting failures in the window.
+
+## Settings saves (5.1.7)
+
+`savePluginSettings()` writes only the keys it is given, and each screen posts only its own, so
+`SettingsController::actionSave()` merges the post over the settings *stored in project config* —
+not over `getSettings()`, which carries `config/garrison.php` overrides. Saving is `requireAdmin()`
+(allowAdminChanges on); viewing is admin or `garrison:manageSettings`, and `_layouts/plugin.twig`
+turns any `fullPageForm` screen read-only for whoever can't save.
+

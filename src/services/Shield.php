@@ -82,7 +82,11 @@ class Shield extends Component
      * Record a login attempt and, on failure, lock the IP out once it crosses
      * the configured threshold.
      */
-    public function recordLoginAttempt(string $ip, ?string $username, bool $successful): void
+    /**
+     * @param string[] $identities on success, every name the user could have typed (username,
+     *                             email) — only failures against those are cleared
+     */
+    public function recordLoginAttempt(string $ip, ?string $username, bool $successful, array $identities = []): void
     {
         $record = new LoginAttemptRecord();
         $record->ipAddress = $ip;
@@ -91,37 +95,108 @@ class Shield extends Component
         $record->save(false);
 
         if ($successful) {
-            // Clear the failure streak so a fresh login isn't immediately re-locked.
-            LoginAttemptRecord::deleteAll([
-                'and',
-                ['ipAddress' => $ip, 'successful' => false],
-            ]);
+            // Clear this account's failure streak so a fresh login isn't immediately re-locked —
+            // and only this account's. Clearing the whole IP let anyone with one valid account
+            // reset the lockout between guesses at another.
+            $names = array_values(array_unique(array_filter(
+                array_map(fn($name) => is_string($name) ? substr($name, 0, 255) : '', [$username, ...$identities]),
+                fn($name) => $name !== '',
+            )));
+
+            if ($names !== []) {
+                LoginAttemptRecord::deleteAll([
+                    'and',
+                    ['ipAddress' => $ip, 'successful' => false],
+                    ['username' => $names],
+                ]);
+            }
+
             return;
         }
 
-        if ($this->isLockedOut($ip)) {
+        // Start a lockout once the threshold is crossed — once, not on every later failure.
+        if ($this->getLockoutEnd($ip) === null
+            && $this->getRecentFailedAttempts($ip) >= Plugin::getInstance()->getSettings()->maxLoginAttempts) {
+            $this->startLockout($ip);
             $this->onLockout($ip, $username);
         }
     }
 
+    /**
+     * Failed attempts that count towards the next lockout: inside `loginAttemptWindow`, and after
+     * the last lockout ended — the attempts that caused a lockout don't cause another one.
+     */
     public function getRecentFailedAttempts(string $ip): int
     {
         $settings = Plugin::getInstance()->getSettings();
-        $cutoff = Db::prepareDateForDb(
-            (new \DateTime('now', new \DateTimeZone('UTC')))->modify("-{$settings->loginAttemptWindow} seconds")
-        );
+        $since = time() - $settings->loginAttemptWindow;
+        $lock = $this->lockout($ip);
+
+        if ($lock !== null) {
+            $since = max($since, $lock['until']);
+        }
 
         return (int) LoginAttemptRecord::find()
             ->where(['ipAddress' => $ip, 'successful' => false])
-            ->andWhere(['>=', 'dateCreated', $cutoff])
+            ->andWhere(['>=', 'dateCreated', Db::prepareDateForDb(new \DateTime('@' . $since))])
             ->count();
+    }
+
+    /**
+     * When the IP's lockout ends, or null if it isn't locked out.
+     */
+    public function getLockoutEnd(string $ip): ?\DateTime
+    {
+        $lock = $this->lockout($ip);
+
+        if ($lock !== null && $lock['until'] > time()) {
+            return new \DateTime('@' . $lock['until']);
+        }
+
+        return null;
     }
 
     public function isLockedOut(string $ip): bool
     {
+        if ($this->getLockoutEnd($ip) !== null) {
+            return true;
+        }
+
+        // Over the threshold with no lockout on record — the cache was cleared, or the lockout
+        // hasn't been started yet. Locked until enough of those attempts leave the window.
+        return $this->getRecentFailedAttempts($ip) >= Plugin::getInstance()->getSettings()->maxLoginAttempts;
+    }
+
+    /**
+     * Lock the IP out for `lockoutDuration` seconds from now.
+     *
+     * Kept in Craft's cache — clearing caches lifts it — for `lockoutDuration` plus
+     * `loginAttemptWindow`, so that after it ends the attempts that caused it stop counting.
+     */
+    private function startLockout(string $ip): void
+    {
         $settings = Plugin::getInstance()->getSettings();
 
-        return $this->getRecentFailedAttempts($ip) >= $settings->maxLoginAttempts;
+        Craft::$app->getCache()->set(
+            $this->lockoutKey($ip),
+            ['until' => time() + $settings->lockoutDuration],
+            $settings->lockoutDuration + $settings->loginAttemptWindow,
+        );
+    }
+
+    /**
+     * @return array{until:int}|null
+     */
+    private function lockout(string $ip): ?array
+    {
+        $lock = Craft::$app->getCache()->get($this->lockoutKey($ip));
+
+        return is_array($lock) && isset($lock['until']) ? ['until' => (int) $lock['until']] : null;
+    }
+
+    private function lockoutKey(string $ip): string
+    {
+        return 'garrison:lockout:' . md5($ip);
     }
 
     /**
@@ -132,7 +207,7 @@ class Shield extends Component
     {
         if ($this->isLockedOut($ip)) {
             $this->blockRequest($ip, BlockReason::LoginLockout, [
-                'failedAttempts' => $this->getRecentFailedAttempts($ip),
+                'lockedUntil' => $this->getLockoutEnd($ip)?->format(\DateTime::ATOM),
             ]);
         }
     }
@@ -342,26 +417,53 @@ class Shield extends Component
     }
 
     /**
+     * SQL-injection signatures. Each one needs SQL context — a quote or bracket breaking out, a
+     * UNION SELECT, a stacked statement — because the plain words are ordinary English: "select a
+     * size from the list" is a product page, and `--` is punctuation (and turns up in a few percent
+     * of Craft's CSRF tokens, which until 5.1.7 blocked that many ordinary form posts).
+     */
+    private const SQLI_PATTERN = '/(?:'
+        . '\bunion\b(?:\s|\/\*.*?\*\/)+(?:all\s+|distinct\s+)?select\b'          // UNION SELECT
+        . '|[\'"`)]\s*(?:or|and)\s+[\'"`]?\w*[\'"`]?\s*(?:=|like\b)'               // ' OR 'a'='a
+        . '|\bor\b\s+1\s*=\s*1\b'                                                   // OR 1=1
+        . '|[\'"`]\s*(?:--|\/\*)'                                                    // admin'--
+        . '|[\'"`)]\s*;\s*(?:drop|delete|truncate|insert|update|alter|create|exec)\b' // '; DROP …
+        . '|\bdrop\s+table\b'
+        . '|\binsert\s+into\b[\s\S]+?\bvalues\s*\('
+        . '|\b(?:sleep|benchmark|pg_sleep)\(\s*\d'                                   // MySQL wants no space before (
+        . '|\bwaitfor\s+delay\b'
+        . '|\binformation_schema\b'
+        . '|\bload_file\s*\('
+        . '|\binto\s+(?:out|dump)file\b'
+        . ')/i';
+
+    /**
      * Return the handle of the first WAF rule the request trips, or null.
      */
     public function matchWafRules($request, array $enabledRules): ?string
     {
-        $haystacks = array_merge(
+        // Each value on its own: joined into one string, a quote closing one field and a `--`
+        // opening the next would read as an injection that neither field contains.
+        $values = $this->flatten(array_merge(
             array_values($request->getQueryParams()),
-            [$request->getRawBody()],
-        );
-        $values = $this->flatten($haystacks);
-        $blob = strtolower(implode("\n", $values) . "\n" . $request->getUrl());
+            $this->bodyValues($request),
+        ));
+        $values[] = (string) $request->getUrl();
 
         $patterns = [
-            'sql-injection' => '/(\bunion\b.+\bselect\b|\bselect\b.+\bfrom\b|\binsert\b.+\binto\b|\bdrop\b.+\btable\b|--|\bor\b\s+1\s*=\s*1)/i',
+            'sql-injection' => self::SQLI_PATTERN,
             'xss' => '/(<script\b|javascript:|onerror\s*=|onload\s*=|<iframe\b)/i',
             'path-traversal' => '#(\.\./|\.\.\\\\|/etc/passwd|\bphp://|\bfile://)#i',
         ];
 
         foreach ($patterns as $handle => $pattern) {
-            if (in_array($handle, $enabledRules, true) && preg_match($pattern, $blob)) {
-                return $handle;
+            if (!in_array($handle, $enabledRules, true)) {
+                continue;
+            }
+            foreach ($values as $value) {
+                if (preg_match($pattern, $value)) {
+                    return $handle;
+                }
             }
         }
 
@@ -426,6 +528,51 @@ class Shield extends Component
                 'username' => $username,
             ]);
         }
+    }
+
+    /**
+     * The request body's values, as the application will read them.
+     *
+     * Parsed fields rather than the raw body: the raw body is URL-encoded, and it carries the CSRF
+     * token, which is random and was tripping signatures. Password fields are skipped too — they
+     * are hashed, never queried or echoed, and a strong password is exactly the kind of string a
+     * signature fires on. A body Craft can't parse into fields (XML, plain text) is inspected raw.
+     *
+     * @return array<mixed>
+     */
+    private function bodyValues($request): array
+    {
+        $params = method_exists($request, 'getBodyParams') ? $request->getBodyParams() : [];
+
+        if (!is_array($params) || $params === []) {
+            $raw = (string) $request->getRawBody();
+
+            return $raw === '' ? [] : [$raw];
+        }
+
+        $csrfParam = is_object($request) && property_exists($request, 'csrfParam') ? $request->csrfParam : null;
+        if (is_string($csrfParam)) {
+            unset($params[$csrfParam]);
+        }
+
+        return $this->withoutPasswords($params);
+    }
+
+    /**
+     * @param array<mixed> $params
+     * @return array<mixed>
+     */
+    private function withoutPasswords(array $params): array
+    {
+        foreach ($params as $key => $value) {
+            if (is_string($key) && stripos($key, 'password') !== false) {
+                unset($params[$key]);
+            } elseif (is_array($value)) {
+                $params[$key] = $this->withoutPasswords($value);
+            }
+        }
+
+        return $params;
     }
 
     /**

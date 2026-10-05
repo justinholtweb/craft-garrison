@@ -97,10 +97,10 @@ To disable specific checks, set the `enabledChecks` array in `config/garrison.ph
 Active request-level protection, evaluated on `Application::EVENT_BEFORE_REQUEST`. Checks run cheapest first; control-panel traffic is exempt from rate limiting, geo-blocking, and the WAF to avoid locking out administrators:
 
 1. **IP allow/block rules** — exact, CIDR, or wildcard patterns, scoped to CP / frontend / everywhere → 403
-2. **Login lockout** — failed-attempt threshold enforced before the password is checked → 403 / 429
+2. **Login lockout** — once `maxLoginAttempts` failures land inside `loginAttemptWindow`, the IP is locked out for `lockoutDuration`, enforced before the password is checked → 403. A successful login clears only that account's failures, so one valid account can't reset the lockout for another. Lockouts live in Craft's cache; clearing caches lifts one
 3. **Geo-blocking** (Pro) — block or allowlist by country, resolved from an upstream country header (Cloudflare `CF-IPCountry` by default) → 403
 4. **Rate limiting** (Pro) — fixed-window per-IP counter backed by Craft's cache → 429
-5. **WAF rules** (Pro) — regex signatures for SQL injection, XSS, path traversal, and malicious user agents → 403
+5. **WAF rules** (Pro) — regex signatures for SQL injection, XSS, path traversal, and malicious user agents → 403. Each query and body field is checked on its own; the CSRF token and password fields are skipped, and SQL signatures need SQL context (a quote breaking out, `UNION SELECT`, a stacked statement), so ordinary text like "select a size from the list" or a `--` dash gets through
 
 Every block is recorded in the database and fires a `ThreatDetectedEvent`.
 
@@ -169,7 +169,10 @@ Set `scanSchedule` to `hourly`, `daily`, `weekly`, or `monthly`. Garrison enqueu
 | Run security scans | Execute manual scans |
 | View audit log | Access the Sentinel audit log |
 | Manage shield rules | Add/remove IP rules, manage file baselines |
-| Manage Garrison settings | Access plugin settings |
+| Manage Garrison settings | View plugin settings (read-only) |
+
+Changing settings writes project config, so only an admin can save them, and only where
+`allowAdminChanges` is on. Everyone else with access sees the settings screens read-only.
 
 ## Events
 

@@ -4,7 +4,7 @@
     "type": "craft-plugin",
     "license": "proprietary",
     "minimum-stability": "dev",
-    "version": "5.1.6",
+    "version": "5.1.7",
     "prefer-stable": true,
     "require": {
         "php": "^8.2",
@@ -13,7 +13,8 @@
     "require-dev": {
         "codeception/codeception": "^5.0",
         "craftcms/ecs": "dev-main",
-        "craftcms/phpstan": "dev-main"
+        "craftcms/phpstan": "dev-main",
+        "phpstan/phpstan": "^1.12 || ^2.2"
     },
     "autoload": {
         "psr-4": {

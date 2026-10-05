@@ -2,6 +2,30 @@
 
 {% set selectedSubnavItem = selectedSubnavItem ?? null %}
 
+{#
+ # Screens that set `fullPageForm` save plugin settings, which is admin-only and writes project
+ # config. Anyone else — or anyone on an environment with allowAdminChanges off — gets the same
+ # screen read-only, with no Save button.
+ #}
+{% set settingsForm = fullPageForm ?? false %}
+{% set canSaveSettings = currentUser.admin and craft.app.config.general.allowAdminChanges %}
+{% set readOnlySettings = settingsForm and not canSaveSettings %}
+{% if readOnlySettings %}
+    {% set fullPageForm = false %}
+{% endif %}
+
 {% block content %}
-    {% block pluginContent %}{% endblock %}
+    {% if readOnlySettings %}
+        {{ tag('p', {
+            class: ['notice', 'with-icon'],
+            text: currentUser.admin
+                ? 'These settings can’t be changed on this environment, because allowAdminChanges is off.'|t('garrison')
+                : 'Only an admin can change these settings.'|t('garrison'),
+        }) }}
+        <fieldset disabled>
+            {{ block('pluginContent') }}
+        </fieldset>
+    {% else %}
+        {% block pluginContent %}{% endblock %}
+    {% endif %}
 {% endblock %}

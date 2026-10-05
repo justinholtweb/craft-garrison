@@ -122,4 +122,6 @@ return [
     'View audit log' => 'View audit log',
     'Manage shield rules' => 'Manage shield rules',
     'Manage Garrison settings' => 'Manage Garrison settings',
+    'Only an admin can change these settings.' => 'Only an admin can change these settings.',
+    'These settings can’t be changed on this environment, because allowAdminChanges is off.' => 'These settings can’t be changed on this environment, because allowAdminChanges is off.',
 ];

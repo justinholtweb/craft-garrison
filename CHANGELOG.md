@@ -1,5 +1,37 @@
 # Changelog
 
+## 5.1.7 - 2026-10-05
+
+> {warning} Saving any Garrison settings screen used to reset every setting on the *other* screens
+> to its default — so saving Notifications could switch Login Protection, rate limiting or the WAF
+> off. Check **Garrison → Settings** and the **Shield** screens after updating and turn back on
+> anything you expect to be on.
+
+### Fixed
+- Each settings screen posts only its own fields, and Craft stores only the fields it's given, so
+  saving one screen erased the rest from project config. Saves now merge into the settings already
+  stored. Settings from `config/garrison.php` stay in that file and aren't copied into project
+  config.
+
+- The WAF blocked ordinary visitors. It matched the raw request body, CSRF token included, and its
+  SQL-injection rule fired on any `--` — which turns up in a few percent of Craft's CSRF tokens —
+  and on plain English such as "select a size from the list". It now inspects the request's fields
+  one at a time, skips the CSRF token and password fields, and its SQL rules need SQL context: a
+  quote breaking out, `UNION SELECT`, a stacked statement, a time-delay function.
+- `lockoutDuration` was saved and shown in the control panel but never used: a lockout lasted as
+  long as the failed attempts stayed inside `loginAttemptWindow`. A lockout now starts when the
+  threshold is crossed and lasts `lockoutDuration`. After it ends, the attempts that caused it no
+  longer count. Lockouts are kept in Craft's cache, so clearing caches lifts one early.
+
+### Security
+- Settings could be saved with `allowAdminChanges` off. Saving now needs an admin on an environment
+  that allows admin changes. Anyone else (users with **Manage Garrison settings**, or an admin where
+  changes are off) sees the screens read-only, with no Save button and a note saying why. Before,
+  **Manage Garrison settings** showed a Settings link that led to a 403.
+- A successful login cleared every failed attempt from that IP address, so someone with one valid
+  account could reset the lockout between guesses at another. It now clears only the failures
+  recorded against the account that signed in, by username or email.
+
 ## 5.1.6 - 2026-08-19
 
 ### Fixed

@@ -280,7 +280,7 @@ class Plugin extends BasePlugin
             }
         );
 
-        // Record successful logins (clears the failure streak).
+        // Record successful logins (clears that account's failure streak).
         Event::on(
             WebUser::class,
             WebUser::EVENT_AFTER_LOGIN,
@@ -291,6 +291,7 @@ class Plugin extends BasePlugin
                         $ip,
                         $event->identity->username ?? null,
                         true,
+                        [$event->identity->email ?? null],
                     );
                 }
             }
